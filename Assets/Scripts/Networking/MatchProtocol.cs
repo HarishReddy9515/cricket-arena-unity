@@ -11,7 +11,10 @@ namespace CricketArena.Networking
         public bool ready;
         public float timing;
         public string intent;
+        public string code;
+        public string message;
         public long clientTime;
+        public long serverTime;
 
         public static MatchMessage JoinRoom(string roomCode)
         {
@@ -46,6 +49,14 @@ namespace CricketArena.Networking
         public DeliveryDto delivery;
         public RoomDto room;
         public OutcomeDto outcome;
+    }
+
+    [Serializable]
+    public sealed class ErrorMessage
+    {
+        public string type;
+        public string code;
+        public string message;
     }
 
     [Serializable]
@@ -90,5 +101,6 @@ namespace CricketArena.Networking
         public const string RoomState = "room_state";
         public const string Ping = "ping";
         public const string Pong = "pong";
+        public const string Error = "error";
     }
 }

@@ -17,6 +17,7 @@ const requiredFiles = [
   "Assets/Scripts/Presentation/CricketAssetManifest.cs",
   "Assets/Scripts/Presentation/MobileHaptics.cs",
   "Assets/Scripts/Presentation/ImpactVfxController.cs",
+  "Assets/Scripts/Presentation/MobilePerformanceManager.cs",
   "Assets/Scripts/Presentation/PlayerAnimationDirector.cs",
   "Assets/Scripts/Presentation/RuntimeAssetBinder.cs",
   "Assets/Scripts/Networking/RealtimeMatchClient.cs",
@@ -32,6 +33,8 @@ const requiredFiles = [
   "docs/ASSET_PIPELINE.md",
   "docs/ANIMATION_PIPELINE.md",
   "docs/BUILD_AND_RELEASE.md",
+  "docs/MULTIPLAYER_OPERATIONS.md",
+  "docs/MOBILE_PERFORMANCE.md",
   "scripts/run-checks.ps1",
   ".github/workflows/smoke.yml",
   "server/Dockerfile",
@@ -62,6 +65,7 @@ const manifest = fs.readFileSync(path.join(root, "Assets/Scripts/Presentation/Cr
 const binder = fs.readFileSync(path.join(root, "Assets/Scripts/Presentation/RuntimeAssetBinder.cs"), "utf8");
 const impact = fs.readFileSync(path.join(root, "Assets/Scripts/Presentation/ImpactVfxController.cs"), "utf8");
 const animation = fs.readFileSync(path.join(root, "Assets/Scripts/Presentation/PlayerAnimationDirector.cs"), "utf8");
+const performance = fs.readFileSync(path.join(root, "Assets/Scripts/Presentation/MobilePerformanceManager.cs"), "utf8");
 
 for (const symbol of ["MatchPhase", "ApplyOutcome", "OnScoreChanged", "SyncAuthoritativeState"]) {
   if (!matchManager.includes(symbol)) throw new Error(`MatchManager missing ${symbol}`);
@@ -83,11 +87,11 @@ if (!fs.readFileSync(path.join(root, "Assets/Scripts/Gameplay/BowlingController.
   throw new Error("BowlingController missing PlayerAnimationDirector");
 }
 
-for (const symbol of ["ClientWebSocket", "ConnectAsync", "SendAsync", "ReceiveLoop", "Disconnect", "JoinRoom", "SetReady", "RequestDelivery", "SendShot", "ReceiveJson", "LastOutboundJson"]) {
+for (const symbol of ["ClientWebSocket", "ConnectAsync", "SendAsync", "ReceiveLoop", "Disconnect", "JoinRoom", "SetReady", "RequestDelivery", "SendShot", "ReceiveJson", "LastOutboundJson", "LastLatencyMs", "OnServerError"]) {
   if (!network.includes(symbol)) throw new Error(`RealtimeMatchClient missing ${symbol}`);
 }
 
-for (const symbol of ["MatchMessage", "DeliveryDto", "RoomDto", "OutcomeDto", "MatchEvents", "request_delivery"]) {
+for (const symbol of ["MatchMessage", "DeliveryDto", "RoomDto", "OutcomeDto", "ErrorMessage", "MatchEvents", "request_delivery"]) {
   if (!protocol.includes(symbol)) throw new Error(`MatchProtocol missing ${symbol}`);
 }
 
@@ -99,11 +103,11 @@ for (const symbol of ["MultiplayerLobbyController", "Ready", "RequestDelivery", 
   if (!lobby.includes(symbol)) throw new Error(`MultiplayerLobbyController missing ${symbol}`);
 }
 
-for (const symbol of ["join_room", "request_delivery", "resolveOutcome", "match_state"]) {
+for (const symbol of ["join_room", "request_delivery", "resolveOutcome", "match_state", "sanitizeRoomCode", "MAX_ROOM_PLAYERS", "cleanupRooms"]) {
   if (!server.includes(symbol)) throw new Error(`authoritative-server missing ${symbol}`);
 }
 
-for (const symbol of ["MenuItem", "BuildScene", "CreateStadium", "CreatePlayer", "CreateHud", "RealtimeMatchClient", "NetworkGameplaySynchronizer", "RuntimeAssetBinder", "CreateButton", "RoomCodeInput"]) {
+for (const symbol of ["MenuItem", "BuildScene", "CreateStadium", "CreatePlayer", "CreateHud", "RealtimeMatchClient", "NetworkGameplaySynchronizer", "RuntimeAssetBinder", "MobilePerformanceManager", "CreateButton", "RoomCodeInput"]) {
   if (!sceneBuilder.includes(symbol)) throw new Error(`ArenaSceneBuilder missing ${symbol}`);
 }
 
@@ -123,11 +127,15 @@ for (const symbol of ["PlayerAnimationDirector", "PlayBowling", "PlayShot", "Del
   if (!animation.includes(symbol)) throw new Error(`PlayerAnimationDirector missing ${symbol}`);
 }
 
+for (const symbol of ["MobilePerformanceManager", "ApplyBattery", "ApplyBalanced", "ApplyPerformance", "targetFrameRate", "shadowDistance"]) {
+  if (!performance.includes(symbol)) throw new Error(`MobilePerformanceManager missing ${symbol}`);
+}
+
 for (const symbol of ["RuntimeAssetBinder", "PlayBoundary", "PlayWicket"]) {
   if (!impact.includes(symbol)) throw new Error(`ImpactVfxController missing ${symbol}`);
 }
 
-for (const symbol of ["Configure Android Mobile Build", "IL2CPP", "ARM64"]) {
+for (const symbol of ["Configure Android Mobile Build", "IL2CPP", "ARM64", "ASTC", "antiAliasing"]) {
   if (!mobileBuild.includes(symbol)) throw new Error(`MobileBuildConfigurator missing ${symbol}`);
 }
 

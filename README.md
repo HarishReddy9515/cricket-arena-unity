@@ -21,6 +21,7 @@ This is **not** a clone of Real Cricket, WCC, EA Sports FC, or PUBG. It is an or
 - Android APK/AAB build automation
 - Docker-ready authoritative multiplayer server
 - local and GitHub smoke checks
+- room cleanup, capacity limits, latency telemetry, and mobile quality presets
 - Android/mobile build checklist
 
 ## Required Unity Setup
@@ -99,6 +100,14 @@ The scene builder creates:
 ## Build And Release
 
 See [docs/BUILD_AND_RELEASE.md](docs/BUILD_AND_RELEASE.md). The project includes Unity batch-mode Android build entry points, local smoke checks, GitHub Actions checks, and Docker deployment files for the authoritative server.
+
+## Multiplayer Operations
+
+See [docs/MULTIPLAYER_OPERATIONS.md](docs/MULTIPLAYER_OPERATIONS.md). The server includes room-code sanitization, player limits, stale room cleanup, and a two-client protocol smoke test.
+
+## Mobile Performance
+
+See [docs/MOBILE_PERFORMANCE.md](docs/MOBILE_PERFORMANCE.md). Runtime quality presets tune frame rate, anti-aliasing, shadow distance, and LOD bias for battery, balanced, and performance modes.
 
 ## Authoritative Server
 
@@ -181,6 +190,7 @@ Then open the generated Unity scene, press **Connect**, enter or keep `ARENA-24`
 - gameplay-driven animation parameter contract
 - Android APK/AAB build automation
 - Docker-ready authoritative multiplayer server
+- room cleanup, latency telemetry, and mobile quality presets
 
 ## Current Status
 

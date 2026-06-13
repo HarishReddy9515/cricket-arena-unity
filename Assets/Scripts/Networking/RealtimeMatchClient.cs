@@ -17,12 +17,15 @@ namespace CricketArena.Networking
 
         public bool IsConnected { get; private set; }
         public string RoomCode { get; private set; }
+        public string PlayerId { get; private set; }
         public string LastOutboundJson { get; private set; }
         public string LastInboundJson { get; private set; }
+        public long LastLatencyMs { get; private set; }
 
         public event Action<string> OnMessage;
         public event Action<DeliveryMessage> OnDelivery;
         public event Action<DeliveryMessage> OnMatchState;
+        public event Action<ErrorMessage> OnServerError;
 
 #if !UNITY_WEBGL
         private ClientWebSocket socket;
@@ -130,7 +133,21 @@ namespace CricketArena.Networking
             if (envelope == null || string.IsNullOrWhiteSpace(envelope.type)) return;
 
             OnMessage?.Invoke($"server:{envelope.type}");
-            if (envelope.type == MatchEvents.Delivery)
+            if (envelope.type == MatchEvents.Connected)
+            {
+                PlayerId = envelope.playerId;
+                OnMessage?.Invoke($"player:{PlayerId}");
+            }
+            else if (envelope.type == MatchEvents.Pong)
+            {
+                LastLatencyMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - envelope.clientTime;
+                OnMessage?.Invoke($"latency:{LastLatencyMs}ms");
+            }
+            else if (envelope.type == MatchEvents.Error)
+            {
+                OnServerError?.Invoke(JsonUtility.FromJson<ErrorMessage>(json));
+            }
+            else if (envelope.type == MatchEvents.Delivery)
             {
                 OnDelivery?.Invoke(JsonUtility.FromJson<DeliveryMessage>(json));
             }

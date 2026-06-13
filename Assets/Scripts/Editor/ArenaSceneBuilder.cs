@@ -40,6 +40,7 @@ namespace CricketArena.EditorTools
             var cameraDirector = game.AddComponent<CameraDirector>();
             var assetBinder = game.AddComponent<RuntimeAssetBinder>();
             var animationDirector = game.AddComponent<PlayerAnimationDirector>();
+            game.AddComponent<MobilePerformanceManager>();
             var networkClient = game.AddComponent<RealtimeMatchClient>();
             var networkSync = game.AddComponent<NetworkGameplaySynchronizer>();
 

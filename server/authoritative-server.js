@@ -2,6 +2,8 @@ const crypto = require("crypto");
 const http = require("http");
 
 const PORT = Number(process.env.PORT || 8790);
+const ROOM_TTL_MS = Number(process.env.ROOM_TTL_MS || 10 * 60 * 1000);
+const MAX_ROOM_PLAYERS = Number(process.env.MAX_ROOM_PLAYERS || 2);
 const clients = new Map();
 const rooms = new Map();
 
@@ -26,7 +28,9 @@ const server = http.createServer((req, res) => {
         status: room.status,
         score: room.score,
         wickets: room.wickets,
-        balls: room.balls
+        balls: room.balls,
+        createdAt: room.createdAt,
+        updatedAt: room.updatedAt
       }))
     });
     return;
@@ -71,10 +75,15 @@ function handleMessage(socket, message) {
   if (!client || !message.type) return;
 
   if (message.type === "join_room") {
-    const code = String(message.roomCode || "ARENA-24").toUpperCase().slice(0, 16);
+    const code = sanitizeRoomCode(message.roomCode || "ARENA-24");
     const room = getRoom(code);
+    if (room.players.length >= MAX_ROOM_PLAYERS && !room.players.includes(socket)) {
+      send(socket, { type: "error", code: "room_full", message: "Room is full" });
+      return;
+    }
     if (!room.players.includes(socket)) room.players.push(socket);
     client.roomCode = code;
+    touch(room);
     broadcastRoom(room, { type: "room_state", room: publicRoom(room) });
   }
 
@@ -82,6 +91,7 @@ function handleMessage(socket, message) {
     client.ready = Boolean(message.ready);
     const room = currentRoom(client);
     if (!room) return;
+    touch(room);
     if (room.players.length >= 2 && room.players.every((player) => clients.get(player)?.ready)) {
       room.status = "live";
       queueDelivery(room);
@@ -91,7 +101,10 @@ function handleMessage(socket, message) {
 
   if (message.type === "request_delivery") {
     const room = currentRoom(client);
-    if (room && room.status === "live") queueDelivery(room);
+    if (room && room.status === "live") {
+      touch(room);
+      queueDelivery(room);
+    }
   }
 
   if (message.type === "shot") {
@@ -101,6 +114,7 @@ function handleMessage(socket, message) {
     room.score += outcome.runs;
     room.wickets += outcome.wicket ? 1 : 0;
     room.balls += 1;
+    touch(room);
     room.timeline.push({ ball: room.balls, delivery: room.delivery.name, outcome });
     room.delivery = null;
     if (room.score >= room.target || room.balls >= 6 || room.wickets >= 2) {
@@ -125,10 +139,21 @@ function getRoom(code) {
       wickets: 0,
       balls: 0,
       delivery: null,
-      timeline: []
+      timeline: [],
+      createdAt: Date.now(),
+      updatedAt: Date.now()
     });
   }
   return rooms.get(code);
+}
+
+function sanitizeRoomCode(value) {
+  const code = String(value).toUpperCase().replace(/[^A-Z0-9-]/g, "").slice(0, 16);
+  return code || "ARENA-24";
+}
+
+function touch(room) {
+  room.updatedAt = Date.now();
 }
 
 function currentRoom(client) {
@@ -162,12 +187,26 @@ function publicRoom(room) {
     score: room.score,
     wickets: room.wickets,
     balls: room.balls,
+    updatedAt: room.updatedAt,
     players: room.players.map((player) => {
       const client = clients.get(player);
       return { id: client.id, ready: client.ready };
     }),
     timeline: room.timeline.slice(-12)
   };
+}
+
+function cleanupRooms() {
+  const now = Date.now();
+  for (const [code, room] of rooms) {
+    if (room.players.length === 0 || now - room.updatedAt > ROOM_TTL_MS) {
+      room.players.forEach((socket) => {
+        send(socket, { type: "error", code: "room_expired", message: "Room expired" });
+        socket.destroy();
+      });
+      rooms.delete(code);
+    }
+  }
 }
 
 function leave(socket) {
@@ -246,6 +285,7 @@ if (require.main === module) {
   server.listen(PORT, () => {
     console.log(`Cricket Arena authoritative server on http://localhost:${PORT}`);
   });
+  setInterval(cleanupRooms, 30_000).unref();
 }
 
-module.exports = { server, resolveOutcome };
+module.exports = { server, resolveOutcome, sanitizeRoomCode, cleanupRooms };
