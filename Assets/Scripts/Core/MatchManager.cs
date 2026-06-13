@@ -1,0 +1,75 @@
+using UnityEngine;
+using UnityEngine.Events;
+
+namespace CricketArena.Core
+{
+    public enum MatchPhase
+    {
+        Menu,
+        WaitingForDelivery,
+        DeliveryLive,
+        ShotResolved,
+        InningsComplete
+    }
+
+    public sealed class MatchManager : MonoBehaviour
+    {
+        [Header("Match")]
+        [SerializeField] private int targetRuns = 24;
+        [SerializeField] private int maxBalls = 6;
+        [SerializeField] private int maxWickets = 2;
+
+        [Header("Events")]
+        public UnityEvent<int, int, int, int> OnScoreChanged;
+        public UnityEvent<string> OnMessage;
+
+        public MatchPhase Phase { get; private set; } = MatchPhase.Menu;
+        public int Runs { get; private set; }
+        public int Wickets { get; private set; }
+        public int Balls { get; private set; }
+        public int TargetRuns => targetRuns;
+
+        public void StartChase()
+        {
+            Runs = 0;
+            Wickets = 0;
+            Balls = 0;
+            Phase = MatchPhase.WaitingForDelivery;
+            Publish("Chase started");
+        }
+
+        public void MarkDeliveryLive()
+        {
+            if (Phase == MatchPhase.InningsComplete) return;
+            Phase = MatchPhase.DeliveryLive;
+            Publish("Ball released");
+        }
+
+        public void ApplyOutcome(ShotOutcome outcome)
+        {
+            if (Phase != MatchPhase.DeliveryLive) return;
+
+            Runs += outcome.Runs;
+            Wickets += outcome.IsWicket ? 1 : 0;
+            Balls += 1;
+            Phase = MatchPhase.ShotResolved;
+            Publish(outcome.Message);
+
+            if (Runs >= targetRuns || Balls >= maxBalls || Wickets >= maxWickets)
+            {
+                Phase = MatchPhase.InningsComplete;
+                Publish(Runs >= targetRuns ? "You win" : "Match lost");
+            }
+            else
+            {
+                Phase = MatchPhase.WaitingForDelivery;
+            }
+        }
+
+        private void Publish(string message)
+        {
+            OnScoreChanged?.Invoke(Runs, Wickets, Balls, targetRuns);
+            OnMessage?.Invoke(message);
+        }
+    }
+}
