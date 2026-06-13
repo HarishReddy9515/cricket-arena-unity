@@ -1,0 +1,30 @@
+name: Smoke Checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Unity scaffold smoke test
+        run: node tests/smoke-test.js
+
+      - name: Authoritative server smoke test
+        run: node server/smoke-test.js
+
+      - name: Authoritative protocol smoke test
+        run: node server/protocol-smoke-test.js
+
+      - name: Server syntax check
+        run: node --check server/authoritative-server.js

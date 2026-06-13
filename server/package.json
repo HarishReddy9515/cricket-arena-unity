@@ -5,7 +5,8 @@
   "main": "authoritative-server.js",
   "scripts": {
     "start": "node authoritative-server.js",
-    "smoke": "node smoke-test.js"
+    "smoke": "node smoke-test.js",
+    "protocol-smoke": "node protocol-smoke-test.js"
   },
   "engines": {
     "node": ">=18"

@@ -18,6 +18,9 @@ This is **not** a clone of Real Cricket, WCC, EA Sports FC, or PUBG. It is an or
 - asset pipeline folders for legal models, animations, audio, UI, and VFX
 - production asset manifest and runtime placeholder replacement
 - gameplay-driven animation parameter contract
+- Android APK/AAB build automation
+- Docker-ready authoritative multiplayer server
+- local and GitHub smoke checks
 - Android/mobile build checklist
 
 ## Required Unity Setup
@@ -90,6 +93,12 @@ The scene builder creates:
 - `Cricket Arena > Validate Asset Readiness`
 - `Cricket Arena > Configure Android Mobile Build`
 - `Cricket Arena > Build Playable Prototype Scene`
+- `Cricket Arena > Build Android APK`
+- `Cricket Arena > Build Android AAB`
+
+## Build And Release
+
+See [docs/BUILD_AND_RELEASE.md](docs/BUILD_AND_RELEASE.md). The project includes Unity batch-mode Android build entry points, local smoke checks, GitHub Actions checks, and Docker deployment files for the authoritative server.
 
 ## Authoritative Server
 
@@ -170,6 +179,8 @@ Then open the generated Unity scene, press **Connect**, enter or keep `ARENA-24`
 - impact VFX and stadium audio hooks
 - production asset manifest and runtime placeholder replacement
 - gameplay-driven animation parameter contract
+- Android APK/AAB build automation
+- Docker-ready authoritative multiplayer server
 
 ## Current Status
 

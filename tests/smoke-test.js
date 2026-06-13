@@ -27,7 +27,16 @@ const requiredFiles = [
   "Assets/Scripts/UI/MultiplayerLobbyController.cs",
   "Assets/Scripts/Editor/ArenaSceneBuilder.cs",
   "Assets/Scripts/Editor/AssetReadinessValidator.cs",
-  "Assets/Scripts/Editor/MobileBuildConfigurator.cs"
+  "Assets/Scripts/Editor/MobileBuildConfigurator.cs",
+  "Assets/Scripts/Editor/AndroidBuildPipeline.cs",
+  "docs/ASSET_PIPELINE.md",
+  "docs/ANIMATION_PIPELINE.md",
+  "docs/BUILD_AND_RELEASE.md",
+  "scripts/run-checks.ps1",
+  ".github/workflows/smoke.yml",
+  "server/Dockerfile",
+  "server/docker-compose.yml",
+  "server/protocol-smoke-test.js"
 ];
 
 for (const file of requiredFiles) {
@@ -47,6 +56,7 @@ const server = fs.readFileSync(path.join(root, "server/authoritative-server.js")
 const sceneBuilder = fs.readFileSync(path.join(root, "Assets/Scripts/Editor/ArenaSceneBuilder.cs"), "utf8");
 const validator = fs.readFileSync(path.join(root, "Assets/Scripts/Editor/AssetReadinessValidator.cs"), "utf8");
 const mobileBuild = fs.readFileSync(path.join(root, "Assets/Scripts/Editor/MobileBuildConfigurator.cs"), "utf8");
+const androidBuild = fs.readFileSync(path.join(root, "Assets/Scripts/Editor/AndroidBuildPipeline.cs"), "utf8");
 const replay = fs.readFileSync(path.join(root, "Assets/Scripts/Core/ReplayRecorder.cs"), "utf8");
 const manifest = fs.readFileSync(path.join(root, "Assets/Scripts/Presentation/CricketAssetManifest.cs"), "utf8");
 const binder = fs.readFileSync(path.join(root, "Assets/Scripts/Presentation/RuntimeAssetBinder.cs"), "utf8");
@@ -119,6 +129,10 @@ for (const symbol of ["RuntimeAssetBinder", "PlayBoundary", "PlayWicket"]) {
 
 for (const symbol of ["Configure Android Mobile Build", "IL2CPP", "ARM64"]) {
   if (!mobileBuild.includes(symbol)) throw new Error(`MobileBuildConfigurator missing ${symbol}`);
+}
+
+for (const symbol of ["BuildAndroidApk", "BuildAndroidAab", "BuildAndroidFromCommandLine", "BuildPipeline.BuildPlayer", "BuildOptions.StrictMode"]) {
+  if (!androidBuild.includes(symbol)) throw new Error(`AndroidBuildPipeline missing ${symbol}`);
 }
 
 for (const symbol of ["Record", "PlayLastHighlight", "ReplayEvent"]) {
