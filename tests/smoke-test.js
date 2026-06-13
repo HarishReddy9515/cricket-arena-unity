@@ -56,7 +56,7 @@ for (const symbol of ["Launch", "ResolveShot", "Rigidbody"]) {
   if (!ball.includes(symbol)) throw new Error(`BallPhysicsController missing ${symbol}`);
 }
 
-for (const symbol of ["Connect", "JoinRoom", "SetReady", "RequestDelivery", "SendShot", "ReceiveJson", "LastOutboundJson"]) {
+for (const symbol of ["ClientWebSocket", "ConnectAsync", "SendAsync", "ReceiveLoop", "Disconnect", "JoinRoom", "SetReady", "RequestDelivery", "SendShot", "ReceiveJson", "LastOutboundJson"]) {
   if (!network.includes(symbol)) throw new Error(`RealtimeMatchClient missing ${symbol}`);
 }
 

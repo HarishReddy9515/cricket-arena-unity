@@ -1,4 +1,11 @@
 using System;
+using System.Collections.Concurrent;
+#if !UNITY_WEBGL
+using System.Net.WebSockets;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+#endif
 using UnityEngine;
 
 namespace CricketArena.Networking
@@ -17,13 +24,81 @@ namespace CricketArena.Networking
         public event Action<DeliveryMessage> OnDelivery;
         public event Action<DeliveryMessage> OnMatchState;
 
-        public void Connect()
+#if !UNITY_WEBGL
+        private ClientWebSocket socket;
+        private CancellationTokenSource cancellation;
+#endif
+        private readonly ConcurrentQueue<string> inboundQueue = new ConcurrentQueue<string>();
+        private readonly ConcurrentQueue<string> statusQueue = new ConcurrentQueue<string>();
+
+        private void Update()
         {
-            // Transport hook: send LastOutboundJson through NativeWebSocket, Mirror,
-            // Netcode for GameObjects, or a mobile platform WebSocket plugin.
+            while (statusQueue.TryDequeue(out string status))
+            {
+                OnMessage?.Invoke(status);
+            }
+
+            while (inboundQueue.TryDequeue(out string json))
+            {
+                ReceiveJson(json);
+            }
+        }
+
+        private void OnDestroy()
+        {
+            Disconnect();
+        }
+
+        public async void Connect()
+        {
+#if UNITY_WEBGL
             IsConnected = true;
-            OnMessage?.Invoke($"Connected to {serverUrl}");
+            statusQueue.Enqueue("WebGL requires a browser WebSocket plugin transport.");
             Send(MatchMessage.Ping(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()));
+#else
+            if (IsConnected) return;
+
+            cancellation = new CancellationTokenSource();
+            socket = new ClientWebSocket();
+
+            try
+            {
+                await socket.ConnectAsync(new Uri(serverUrl), cancellation.Token);
+                IsConnected = true;
+                statusQueue.Enqueue($"Connected to {serverUrl}");
+                _ = ReceiveLoop(cancellation.Token);
+                Send(MatchMessage.Ping(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()));
+            }
+            catch (Exception ex)
+            {
+                IsConnected = false;
+                statusQueue.Enqueue($"Connection failed: {ex.Message}");
+                DisposeSocket();
+            }
+#endif
+        }
+
+        public async void Disconnect()
+        {
+#if !UNITY_WEBGL
+            try
+            {
+                if (socket != null && socket.State == WebSocketState.Open)
+                {
+                    await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Client disconnect", CancellationToken.None);
+                }
+            }
+            catch (Exception ex)
+            {
+                statusQueue.Enqueue($"Disconnect error: {ex.Message}");
+            }
+            finally
+            {
+                DisposeSocket();
+            }
+#else
+            IsConnected = false;
+#endif
         }
 
         public void JoinRoom(string roomCode)
@@ -70,6 +145,73 @@ namespace CricketArena.Networking
             if (!IsConnected) return;
             LastOutboundJson = JsonUtility.ToJson(message);
             OnMessage?.Invoke($"client:{message.type}");
+#if !UNITY_WEBGL
+            _ = SendJsonAsync(LastOutboundJson);
+#endif
         }
+
+#if !UNITY_WEBGL
+        private async Task SendJsonAsync(string json)
+        {
+            if (socket == null || socket.State != WebSocketState.Open) return;
+
+            byte[] bytes = Encoding.UTF8.GetBytes(json);
+            try
+            {
+                await socket.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, cancellation.Token);
+            }
+            catch (Exception ex)
+            {
+                statusQueue.Enqueue($"Send failed: {ex.Message}");
+            }
+        }
+
+        private async Task ReceiveLoop(CancellationToken token)
+        {
+            byte[] buffer = new byte[8192];
+            StringBuilder builder = new StringBuilder();
+
+            while (!token.IsCancellationRequested && socket != null && socket.State == WebSocketState.Open)
+            {
+                try
+                {
+                    WebSocketReceiveResult result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), token);
+                    if (result.MessageType == WebSocketMessageType.Close)
+                    {
+                        IsConnected = false;
+                        statusQueue.Enqueue("Server closed connection.");
+                        return;
+                    }
+
+                    builder.Append(Encoding.UTF8.GetString(buffer, 0, result.Count));
+                    if (result.EndOfMessage)
+                    {
+                        inboundQueue.Enqueue(builder.ToString());
+                        builder.Clear();
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    IsConnected = false;
+                    statusQueue.Enqueue($"Receive failed: {ex.Message}");
+                    return;
+                }
+            }
+        }
+
+        private void DisposeSocket()
+        {
+            IsConnected = false;
+            cancellation?.Cancel();
+            socket?.Dispose();
+            cancellation?.Dispose();
+            socket = null;
+            cancellation = null;
+        }
+#endif
     }
 }

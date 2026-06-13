@@ -127,7 +127,14 @@ Scene controls:
 - Request the next authoritative delivery
 - Send shot timing and intent back to the server
 
-`RealtimeMatchClient` currently produces and parses server-compatible JSON. Attach a production WebSocket transport such as NativeWebSocket, Mirror, Netcode for GameObjects, or a platform transport plugin to send `LastOutboundJson` and pass received payloads into `ReceiveJson`.
+Run the server first:
+
+```bash
+cd server
+npm start
+```
+
+Then open the generated Unity scene, press **Connect**, enter or keep `ARENA-24`, press **Join**, and press **Ready**. `RealtimeMatchClient` uses `ClientWebSocket` on supported editor, desktop, and mobile targets. WebGL still needs a browser WebSocket plugin because Unity does not expose the same .NET socket path there.
 
 ## Target Features
 
