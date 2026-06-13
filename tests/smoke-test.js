@@ -13,7 +13,10 @@ const requiredFiles = [
   "Assets/Scripts/Gameplay/BallPhysicsController.cs",
   "Assets/Scripts/Presentation/CameraDirector.cs",
   "Assets/Scripts/Presentation/MobileHaptics.cs",
-  "Assets/Scripts/Networking/RealtimeMatchClient.cs"
+  "Assets/Scripts/Networking/RealtimeMatchClient.cs",
+  "Assets/Scripts/UI/ScoreHudController.cs",
+  "Assets/Scripts/UI/MobileControlsController.cs",
+  "Assets/Scripts/Editor/ArenaSceneBuilder.cs"
 ];
 
 for (const file of requiredFiles) {
@@ -26,6 +29,7 @@ const matchManager = fs.readFileSync(path.join(root, "Assets/Scripts/Core/MatchM
 const batting = fs.readFileSync(path.join(root, "Assets/Scripts/Gameplay/BattingController.cs"), "utf8");
 const ball = fs.readFileSync(path.join(root, "Assets/Scripts/Gameplay/BallPhysicsController.cs"), "utf8");
 const network = fs.readFileSync(path.join(root, "Assets/Scripts/Networking/RealtimeMatchClient.cs"), "utf8");
+const sceneBuilder = fs.readFileSync(path.join(root, "Assets/Scripts/Editor/ArenaSceneBuilder.cs"), "utf8");
 
 for (const symbol of ["MatchPhase", "ApplyOutcome", "OnScoreChanged"]) {
   if (!matchManager.includes(symbol)) throw new Error(`MatchManager missing ${symbol}`);
@@ -41,6 +45,10 @@ for (const symbol of ["Launch", "ResolveShot", "Rigidbody"]) {
 
 for (const symbol of ["Connect", "JoinRoom", "SendShot"]) {
   if (!network.includes(symbol)) throw new Error(`RealtimeMatchClient missing ${symbol}`);
+}
+
+for (const symbol of ["MenuItem", "BuildScene", "CreateStadium", "CreatePlayer", "CreateHud"]) {
+  if (!sceneBuilder.includes(symbol)) throw new Error(`ArenaSceneBuilder missing ${symbol}`);
 }
 
 console.log("Cricket Arena Unity smoke test passed");
