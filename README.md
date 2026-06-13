@@ -136,6 +136,12 @@ npm start
 
 Then open the generated Unity scene, press **Connect**, enter or keep `ARENA-24`, press **Join**, and press **Ready**. `RealtimeMatchClient` uses `ClientWebSocket` on supported editor, desktop, and mobile targets. WebGL still needs a browser WebSocket plugin because Unity does not expose the same .NET socket path there.
 
+`NetworkGameplaySynchronizer` connects server events to gameplay:
+
+- Server `delivery` events launch the Unity ball with the authoritative speed, swing, bounce, and difficulty.
+- Server `match_state` events sync score, wickets, balls, match status, and outcome message.
+- Offline mode still works through local bowling and batting controls when no server is connected.
+
 ## Target Features
 
 - Real 3D stadium

@@ -54,7 +54,10 @@ namespace CricketArena.UI
         public void RequestDelivery()
         {
             client?.RequestDelivery();
-            bowlingController?.BowlNext();
+            if (client == null || !client.IsConnected)
+            {
+                bowlingController?.BowlNext();
+            }
         }
 
         public void SetStraightIntent()
@@ -82,8 +85,11 @@ namespace CricketArena.UI
 
         public void SendShot()
         {
-            battingController?.PlayShot();
             client?.SendShot(lastShotTiming, currentIntent);
+            if (client == null || !client.IsConnected)
+            {
+                battingController?.PlayShot();
+            }
         }
 
         private void OnDelivery(DeliveryMessage message)

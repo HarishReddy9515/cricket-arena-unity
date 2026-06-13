@@ -27,6 +27,18 @@ namespace CricketArena.Gameplay
             matchManager.MarkDeliveryLive();
         }
 
+        public void BowlServerDelivery(DeliveryProfile delivery)
+        {
+            if (matchManager == null || ballPhysics == null || matchManager.Phase == MatchPhase.InningsComplete)
+            {
+                return;
+            }
+
+            bowlerAnimator?.SetTrigger("Bowl");
+            ballPhysics.Launch(releasePoint.position, targetPoint.position, delivery);
+            matchManager.MarkDeliveryLive();
+        }
+
         private DeliveryProfile ChooseDelivery()
         {
             if (deliveries == null || deliveries.Length == 0)

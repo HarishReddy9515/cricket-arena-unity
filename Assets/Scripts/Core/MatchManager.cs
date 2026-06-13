@@ -66,6 +66,23 @@ namespace CricketArena.Core
             }
         }
 
+        public void SyncAuthoritativeState(int runs, int wickets, int balls, string status, string message)
+        {
+            Runs = Mathf.Max(0, runs);
+            Wickets = Mathf.Max(0, wickets);
+            Balls = Mathf.Max(0, balls);
+
+            Phase = status switch
+            {
+                "live" => MatchPhase.WaitingForDelivery,
+                "finished" => MatchPhase.InningsComplete,
+                "waiting" => MatchPhase.Menu,
+                _ => Phase
+            };
+
+            Publish(string.IsNullOrWhiteSpace(message) ? "Server state synced" : message);
+        }
+
         private void Publish(string message)
         {
             OnScoreChanged?.Invoke(Runs, Wickets, Balls, targetRuns);

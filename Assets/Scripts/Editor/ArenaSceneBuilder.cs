@@ -39,6 +39,7 @@ namespace CricketArena.EditorTools
             var bowling = game.AddComponent<BowlingController>();
             var cameraDirector = game.AddComponent<CameraDirector>();
             var networkClient = game.AddComponent<RealtimeMatchClient>();
+            var networkSync = game.AddComponent<NetworkGameplaySynchronizer>();
 
             GameObject ball = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             ball.name = "Ball";
@@ -100,6 +101,12 @@ namespace CricketArena.EditorTools
             SetObject(cameraObj, "battingCamera", battingCam.transform);
             SetObject(cameraObj, "replayCamera", replayCam.transform);
             cameraObj.ApplyModifiedPropertiesWithoutUndo();
+
+            SerializedObject networkSyncObj = new SerializedObject(networkSync);
+            SetObject(networkSyncObj, "client", networkClient);
+            SetObject(networkSyncObj, "matchManager", match);
+            SetObject(networkSyncObj, "bowlingController", bowling);
+            networkSyncObj.ApplyModifiedPropertiesWithoutUndo();
 
             SerializedObject replayObj = new SerializedObject(replayRecorder);
             SetObject(replayObj, "cameraDirector", cameraDirector);

@@ -45,6 +45,7 @@ namespace CricketArena.Networking
         public string type;
         public DeliveryDto delivery;
         public RoomDto room;
+        public OutcomeDto outcome;
     }
 
     [Serializable]
@@ -66,6 +67,15 @@ namespace CricketArena.Networking
         public int score;
         public int wickets;
         public int balls;
+    }
+
+    [Serializable]
+    public sealed class OutcomeDto
+    {
+        public int runs;
+        public bool wicket;
+        public string message;
+        public float quality;
     }
 
     public static class MatchEvents

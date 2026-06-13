@@ -18,6 +18,7 @@ const requiredFiles = [
   "Assets/Scripts/Presentation/ImpactVfxController.cs",
   "Assets/Scripts/Networking/RealtimeMatchClient.cs",
   "Assets/Scripts/Networking/MatchProtocol.cs",
+  "Assets/Scripts/Networking/NetworkGameplaySynchronizer.cs",
   "Assets/Scripts/UI/ScoreHudController.cs",
   "Assets/Scripts/UI/MobileControlsController.cs",
   "Assets/Scripts/UI/MultiplayerLobbyController.cs",
@@ -37,6 +38,7 @@ const batting = fs.readFileSync(path.join(root, "Assets/Scripts/Gameplay/Batting
 const ball = fs.readFileSync(path.join(root, "Assets/Scripts/Gameplay/BallPhysicsController.cs"), "utf8");
 const network = fs.readFileSync(path.join(root, "Assets/Scripts/Networking/RealtimeMatchClient.cs"), "utf8");
 const protocol = fs.readFileSync(path.join(root, "Assets/Scripts/Networking/MatchProtocol.cs"), "utf8");
+const networkSync = fs.readFileSync(path.join(root, "Assets/Scripts/Networking/NetworkGameplaySynchronizer.cs"), "utf8");
 const lobby = fs.readFileSync(path.join(root, "Assets/Scripts/UI/MultiplayerLobbyController.cs"), "utf8");
 const server = fs.readFileSync(path.join(root, "server/authoritative-server.js"), "utf8");
 const sceneBuilder = fs.readFileSync(path.join(root, "Assets/Scripts/Editor/ArenaSceneBuilder.cs"), "utf8");
@@ -44,7 +46,7 @@ const validator = fs.readFileSync(path.join(root, "Assets/Scripts/Editor/AssetRe
 const mobileBuild = fs.readFileSync(path.join(root, "Assets/Scripts/Editor/MobileBuildConfigurator.cs"), "utf8");
 const replay = fs.readFileSync(path.join(root, "Assets/Scripts/Core/ReplayRecorder.cs"), "utf8");
 
-for (const symbol of ["MatchPhase", "ApplyOutcome", "OnScoreChanged"]) {
+for (const symbol of ["MatchPhase", "ApplyOutcome", "OnScoreChanged", "SyncAuthoritativeState"]) {
   if (!matchManager.includes(symbol)) throw new Error(`MatchManager missing ${symbol}`);
 }
 
@@ -60,8 +62,12 @@ for (const symbol of ["ClientWebSocket", "ConnectAsync", "SendAsync", "ReceiveLo
   if (!network.includes(symbol)) throw new Error(`RealtimeMatchClient missing ${symbol}`);
 }
 
-for (const symbol of ["MatchMessage", "DeliveryDto", "RoomDto", "MatchEvents", "request_delivery"]) {
+for (const symbol of ["MatchMessage", "DeliveryDto", "RoomDto", "OutcomeDto", "MatchEvents", "request_delivery"]) {
   if (!protocol.includes(symbol)) throw new Error(`MatchProtocol missing ${symbol}`);
+}
+
+for (const symbol of ["NetworkGameplaySynchronizer", "HandleDelivery", "HandleMatchState", "BowlServerDelivery"]) {
+  if (!networkSync.includes(symbol)) throw new Error(`NetworkGameplaySynchronizer missing ${symbol}`);
 }
 
 for (const symbol of ["MultiplayerLobbyController", "Ready", "RequestDelivery", "SetShotTiming"]) {
@@ -72,7 +78,7 @@ for (const symbol of ["join_room", "request_delivery", "resolveOutcome", "match_
   if (!server.includes(symbol)) throw new Error(`authoritative-server missing ${symbol}`);
 }
 
-for (const symbol of ["MenuItem", "BuildScene", "CreateStadium", "CreatePlayer", "CreateHud", "RealtimeMatchClient", "CreateButton", "RoomCodeInput"]) {
+for (const symbol of ["MenuItem", "BuildScene", "CreateStadium", "CreatePlayer", "CreateHud", "RealtimeMatchClient", "NetworkGameplaySynchronizer", "CreateButton", "RoomCodeInput"]) {
   if (!sceneBuilder.includes(symbol)) throw new Error(`ArenaSceneBuilder missing ${symbol}`);
 }
 
