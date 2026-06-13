@@ -32,6 +32,8 @@ namespace CricketArena.EditorTools
             GameObject game = new GameObject("Game");
             var match = game.AddComponent<MatchManager>();
             var haptics = game.AddComponent<MobileHaptics>();
+            var replayRecorder = game.AddComponent<ReplayRecorder>();
+            var impactVfx = game.AddComponent<ImpactVfxController>();
             var batting = game.AddComponent<BattingController>();
             var bowling = game.AddComponent<BowlingController>();
             var cameraDirector = game.AddComponent<CameraDirector>();
@@ -74,6 +76,8 @@ namespace CricketArena.EditorTools
             SetObject(battingObj, "ballPhysics", ballPhysics);
             SetObject(battingObj, "contactPoint", contact.transform);
             SetObject(battingObj, "haptics", haptics);
+            SetObject(battingObj, "impactVfx", impactVfx);
+            SetObject(battingObj, "replayRecorder", replayRecorder);
             battingObj.ApplyModifiedPropertiesWithoutUndo();
 
             SerializedObject bowlingObj = new SerializedObject(bowling);
@@ -94,6 +98,15 @@ namespace CricketArena.EditorTools
             SetObject(cameraObj, "battingCamera", battingCam.transform);
             SetObject(cameraObj, "replayCamera", replayCam.transform);
             cameraObj.ApplyModifiedPropertiesWithoutUndo();
+
+            SerializedObject replayObj = new SerializedObject(replayRecorder);
+            SetObject(replayObj, "cameraDirector", cameraDirector);
+            SetObject(replayObj, "ball", ball.transform);
+            replayObj.ApplyModifiedPropertiesWithoutUndo();
+
+            SerializedObject vfxObj = new SerializedObject(impactVfx);
+            SetObject(vfxObj, "cameraDirector", cameraDirector);
+            vfxObj.ApplyModifiedPropertiesWithoutUndo();
 
             Selection.activeObject = game;
             EditorSceneManager.MarkSceneDirty(scene);

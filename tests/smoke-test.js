@@ -8,15 +8,20 @@ const requiredFiles = [
   "ProjectSettings/ProjectVersion.txt",
   "Assets/Scripts/Core/MatchManager.cs",
   "Assets/Scripts/Core/ShotOutcome.cs",
+  "Assets/Scripts/Core/ReplayEvent.cs",
+  "Assets/Scripts/Core/ReplayRecorder.cs",
   "Assets/Scripts/Gameplay/BattingController.cs",
   "Assets/Scripts/Gameplay/BowlingController.cs",
   "Assets/Scripts/Gameplay/BallPhysicsController.cs",
   "Assets/Scripts/Presentation/CameraDirector.cs",
   "Assets/Scripts/Presentation/MobileHaptics.cs",
+  "Assets/Scripts/Presentation/ImpactVfxController.cs",
   "Assets/Scripts/Networking/RealtimeMatchClient.cs",
   "Assets/Scripts/UI/ScoreHudController.cs",
   "Assets/Scripts/UI/MobileControlsController.cs",
-  "Assets/Scripts/Editor/ArenaSceneBuilder.cs"
+  "Assets/Scripts/Editor/ArenaSceneBuilder.cs",
+  "Assets/Scripts/Editor/AssetReadinessValidator.cs",
+  "Assets/Scripts/Editor/MobileBuildConfigurator.cs"
 ];
 
 for (const file of requiredFiles) {
@@ -30,6 +35,9 @@ const batting = fs.readFileSync(path.join(root, "Assets/Scripts/Gameplay/Batting
 const ball = fs.readFileSync(path.join(root, "Assets/Scripts/Gameplay/BallPhysicsController.cs"), "utf8");
 const network = fs.readFileSync(path.join(root, "Assets/Scripts/Networking/RealtimeMatchClient.cs"), "utf8");
 const sceneBuilder = fs.readFileSync(path.join(root, "Assets/Scripts/Editor/ArenaSceneBuilder.cs"), "utf8");
+const validator = fs.readFileSync(path.join(root, "Assets/Scripts/Editor/AssetReadinessValidator.cs"), "utf8");
+const mobileBuild = fs.readFileSync(path.join(root, "Assets/Scripts/Editor/MobileBuildConfigurator.cs"), "utf8");
+const replay = fs.readFileSync(path.join(root, "Assets/Scripts/Core/ReplayRecorder.cs"), "utf8");
 
 for (const symbol of ["MatchPhase", "ApplyOutcome", "OnScoreChanged"]) {
   if (!matchManager.includes(symbol)) throw new Error(`MatchManager missing ${symbol}`);
@@ -49,6 +57,18 @@ for (const symbol of ["Connect", "JoinRoom", "SendShot"]) {
 
 for (const symbol of ["MenuItem", "BuildScene", "CreateStadium", "CreatePlayer", "CreateHud"]) {
   if (!sceneBuilder.includes(symbol)) throw new Error(`ArenaSceneBuilder missing ${symbol}`);
+}
+
+for (const symbol of ["Validate Asset Readiness", "Create Recommended Asset Folders", "FindAssets"]) {
+  if (!validator.includes(symbol)) throw new Error(`AssetReadinessValidator missing ${symbol}`);
+}
+
+for (const symbol of ["Configure Android Mobile Build", "IL2CPP", "ARM64"]) {
+  if (!mobileBuild.includes(symbol)) throw new Error(`MobileBuildConfigurator missing ${symbol}`);
+}
+
+for (const symbol of ["Record", "PlayLastHighlight", "ReplayEvent"]) {
+  if (!replay.includes(symbol)) throw new Error(`ReplayRecorder missing ${symbol}`);
 }
 
 console.log("Cricket Arena Unity smoke test passed");

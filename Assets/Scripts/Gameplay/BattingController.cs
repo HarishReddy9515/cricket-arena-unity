@@ -18,6 +18,8 @@ namespace CricketArena.Gameplay
         [SerializeField] private BallPhysicsController ballPhysics;
         [SerializeField] private Animator batterAnimator;
         [SerializeField] private MobileHaptics haptics;
+        [SerializeField] private CricketArena.Presentation.ImpactVfxController impactVfx;
+        [SerializeField] private CricketArena.Core.ReplayRecorder replayRecorder;
 
         [Header("Timing")]
         [SerializeField] private float perfectContactDistance = 1.25f;
@@ -54,6 +56,12 @@ namespace CricketArena.Gameplay
             batterAnimator?.SetTrigger(intent == ShotIntent.Defensive ? "Defend" : "Hit");
             ballPhysics.ResolveShot(outcome.Power, DirectionForIntent(intent));
             haptics?.PlayShotFeedback(outcome);
+            impactVfx?.Play(outcome);
+            replayRecorder?.Record(outcome);
+            if (outcome.Runs >= 4 || outcome.IsWicket)
+            {
+                replayRecorder?.PlayLastHighlight();
+            }
             matchManager.ApplyOutcome(outcome);
             intent = ShotIntent.Straight;
         }

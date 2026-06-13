@@ -57,9 +57,12 @@ Do not use ripped game assets, EA assets, PUBG assets, Real Cricket assets, WCC 
 1. Create a new Unity 3D URP project.
 2. Copy this repo's `Assets` and `ProjectSettings` folders into the Unity project.
 3. Install Cinemachine and Input System.
-4. In Unity, run `Cricket Arena > Build Playable Prototype Scene`.
-5. Save the generated scene as `Assets/Scenes/ArenaPrototype.unity`.
-6. Press Play.
+4. In Unity, run `Cricket Arena > Create Recommended Asset Folders`.
+5. Run `Cricket Arena > Validate Asset Readiness`.
+6. Run `Cricket Arena > Configure Android Mobile Build`.
+7. Run `Cricket Arena > Build Playable Prototype Scene`.
+8. Save the generated scene as `Assets/Scenes/ArenaPrototype.unity`.
+9. Press Play.
 
 The scene builder creates:
 
@@ -73,6 +76,15 @@ The scene builder creates:
 - batting and bowling controllers
 - score HUD
 - mobile controls scaffold
+- replay recorder
+- impact VFX hooks
+
+## Unity Menu Tools
+
+- `Cricket Arena > Create Recommended Asset Folders`
+- `Cricket Arena > Validate Asset Readiness`
+- `Cricket Arena > Configure Android Mobile Build`
+- `Cricket Arena > Build Playable Prototype Scene`
 
 ## Target Features
 
@@ -85,6 +97,8 @@ The scene builder creates:
 - online friend rooms
 - authoritative server validation
 - optimized mobile rendering
+- replay highlights
+- impact VFX and stadium audio hooks
 
 ## Current Status
 
