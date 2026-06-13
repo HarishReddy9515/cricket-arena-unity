@@ -86,6 +86,35 @@ The scene builder creates:
 - `Cricket Arena > Configure Android Mobile Build`
 - `Cricket Arena > Build Playable Prototype Scene`
 
+## Authoritative Server
+
+The `server/` folder contains a dependency-free Node.js authoritative match server scaffold.
+
+Run:
+
+```bash
+cd server
+node authoritative-server.js
+```
+
+Health check:
+
+```text
+http://localhost:8790/health
+```
+
+Protocol events:
+
+- `join_room`
+- `ready`
+- `request_delivery`
+- `delivery`
+- `shot`
+- `match_state`
+- `ping` / `pong`
+
+The server owns delivery selection and shot outcome resolution so clients cannot freely invent results.
+
 ## Target Features
 
 - Real 3D stadium

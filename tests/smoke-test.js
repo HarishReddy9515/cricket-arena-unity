@@ -17,6 +17,7 @@ const requiredFiles = [
   "Assets/Scripts/Presentation/MobileHaptics.cs",
   "Assets/Scripts/Presentation/ImpactVfxController.cs",
   "Assets/Scripts/Networking/RealtimeMatchClient.cs",
+  "Assets/Scripts/Networking/MatchProtocol.cs",
   "Assets/Scripts/UI/ScoreHudController.cs",
   "Assets/Scripts/UI/MobileControlsController.cs",
   "Assets/Scripts/Editor/ArenaSceneBuilder.cs",
@@ -34,6 +35,8 @@ const matchManager = fs.readFileSync(path.join(root, "Assets/Scripts/Core/MatchM
 const batting = fs.readFileSync(path.join(root, "Assets/Scripts/Gameplay/BattingController.cs"), "utf8");
 const ball = fs.readFileSync(path.join(root, "Assets/Scripts/Gameplay/BallPhysicsController.cs"), "utf8");
 const network = fs.readFileSync(path.join(root, "Assets/Scripts/Networking/RealtimeMatchClient.cs"), "utf8");
+const protocol = fs.readFileSync(path.join(root, "Assets/Scripts/Networking/MatchProtocol.cs"), "utf8");
+const server = fs.readFileSync(path.join(root, "server/authoritative-server.js"), "utf8");
 const sceneBuilder = fs.readFileSync(path.join(root, "Assets/Scripts/Editor/ArenaSceneBuilder.cs"), "utf8");
 const validator = fs.readFileSync(path.join(root, "Assets/Scripts/Editor/AssetReadinessValidator.cs"), "utf8");
 const mobileBuild = fs.readFileSync(path.join(root, "Assets/Scripts/Editor/MobileBuildConfigurator.cs"), "utf8");
@@ -53,6 +56,14 @@ for (const symbol of ["Launch", "ResolveShot", "Rigidbody"]) {
 
 for (const symbol of ["Connect", "JoinRoom", "SendShot"]) {
   if (!network.includes(symbol)) throw new Error(`RealtimeMatchClient missing ${symbol}`);
+}
+
+for (const symbol of ["MatchMessage", "DeliveryDto", "RoomDto"]) {
+  if (!protocol.includes(symbol)) throw new Error(`MatchProtocol missing ${symbol}`);
+}
+
+for (const symbol of ["join_room", "request_delivery", "resolveOutcome", "match_state"]) {
+  if (!server.includes(symbol)) throw new Error(`authoritative-server missing ${symbol}`);
 }
 
 for (const symbol of ["MenuItem", "BuildScene", "CreateStadium", "CreatePlayer", "CreateHud"]) {

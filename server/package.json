@@ -1,0 +1,13 @@
+{
+  "name": "cricket-arena-authoritative-server",
+  "version": "0.1.0",
+  "description": "Authoritative multiplayer server scaffold for Cricket Arena Unity.",
+  "main": "authoritative-server.js",
+  "scripts": {
+    "start": "node authoritative-server.js",
+    "smoke": "node smoke-test.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
