@@ -16,6 +16,7 @@ This is **not** a clone of Real Cricket, WCC, EA Sports FC, or PUBG. It is an or
 - mobile haptics bridge
 - WebSocket-style multiplayer client scaffold
 - asset pipeline folders for legal models, animations, audio, UI, and VFX
+- production asset manifest and runtime placeholder replacement
 - Android/mobile build checklist
 
 ## Required Unity Setup
@@ -58,11 +59,13 @@ Do not use ripped game assets, EA assets, PUBG assets, Real Cricket assets, WCC 
 2. Copy this repo's `Assets` and `ProjectSettings` folders into the Unity project.
 3. Install Cinemachine and Input System.
 4. In Unity, run `Cricket Arena > Create Recommended Asset Folders`.
-5. Run `Cricket Arena > Validate Asset Readiness`.
-6. Run `Cricket Arena > Configure Android Mobile Build`.
-7. Run `Cricket Arena > Build Playable Prototype Scene`.
-8. Save the generated scene as `Assets/Scenes/ArenaPrototype.unity`.
-9. Press Play.
+5. Run `Cricket Arena > Create Asset Manifest`.
+6. Assign legal prefabs/audio/materials into `Assets/Art/CricketAssetManifest.asset`.
+7. Run `Cricket Arena > Validate Asset Readiness`.
+8. Run `Cricket Arena > Configure Android Mobile Build`.
+9. Run `Cricket Arena > Build Playable Prototype Scene`.
+10. Save the generated scene as `Assets/Scenes/ArenaPrototype.unity`.
+11. Press Play.
 
 The scene builder creates:
 
@@ -82,6 +85,7 @@ The scene builder creates:
 ## Unity Menu Tools
 
 - `Cricket Arena > Create Recommended Asset Folders`
+- `Cricket Arena > Create Asset Manifest`
 - `Cricket Arena > Validate Asset Readiness`
 - `Cricket Arena > Configure Android Mobile Build`
 - `Cricket Arena > Build Playable Prototype Scene`
@@ -114,6 +118,10 @@ Protocol events:
 - `ping` / `pong`
 
 The server owns delivery selection and shot outcome resolution so clients cannot freely invent results.
+
+## Asset Pipeline
+
+See [docs/ASSET_PIPELINE.md](docs/ASSET_PIPELINE.md). The project uses `CricketAssetManifest` and `RuntimeAssetBinder` so legal production models, animation controllers, materials, and audio can replace procedural placeholders cleanly.
 
 ## Unity Multiplayer Flow
 
@@ -155,6 +163,7 @@ Then open the generated Unity scene, press **Connect**, enter or keep `ARENA-24`
 - optimized mobile rendering
 - replay highlights
 - impact VFX and stadium audio hooks
+- production asset manifest and runtime placeholder replacement
 
 ## Current Status
 

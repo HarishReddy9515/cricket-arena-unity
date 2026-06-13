@@ -14,8 +14,10 @@ const requiredFiles = [
   "Assets/Scripts/Gameplay/BowlingController.cs",
   "Assets/Scripts/Gameplay/BallPhysicsController.cs",
   "Assets/Scripts/Presentation/CameraDirector.cs",
+  "Assets/Scripts/Presentation/CricketAssetManifest.cs",
   "Assets/Scripts/Presentation/MobileHaptics.cs",
   "Assets/Scripts/Presentation/ImpactVfxController.cs",
+  "Assets/Scripts/Presentation/RuntimeAssetBinder.cs",
   "Assets/Scripts/Networking/RealtimeMatchClient.cs",
   "Assets/Scripts/Networking/MatchProtocol.cs",
   "Assets/Scripts/Networking/NetworkGameplaySynchronizer.cs",
@@ -45,6 +47,9 @@ const sceneBuilder = fs.readFileSync(path.join(root, "Assets/Scripts/Editor/Aren
 const validator = fs.readFileSync(path.join(root, "Assets/Scripts/Editor/AssetReadinessValidator.cs"), "utf8");
 const mobileBuild = fs.readFileSync(path.join(root, "Assets/Scripts/Editor/MobileBuildConfigurator.cs"), "utf8");
 const replay = fs.readFileSync(path.join(root, "Assets/Scripts/Core/ReplayRecorder.cs"), "utf8");
+const manifest = fs.readFileSync(path.join(root, "Assets/Scripts/Presentation/CricketAssetManifest.cs"), "utf8");
+const binder = fs.readFileSync(path.join(root, "Assets/Scripts/Presentation/RuntimeAssetBinder.cs"), "utf8");
+const impact = fs.readFileSync(path.join(root, "Assets/Scripts/Presentation/ImpactVfxController.cs"), "utf8");
 
 for (const symbol of ["MatchPhase", "ApplyOutcome", "OnScoreChanged", "SyncAuthoritativeState"]) {
   if (!matchManager.includes(symbol)) throw new Error(`MatchManager missing ${symbol}`);
@@ -78,12 +83,24 @@ for (const symbol of ["join_room", "request_delivery", "resolveOutcome", "match_
   if (!server.includes(symbol)) throw new Error(`authoritative-server missing ${symbol}`);
 }
 
-for (const symbol of ["MenuItem", "BuildScene", "CreateStadium", "CreatePlayer", "CreateHud", "RealtimeMatchClient", "NetworkGameplaySynchronizer", "CreateButton", "RoomCodeInput"]) {
+for (const symbol of ["MenuItem", "BuildScene", "CreateStadium", "CreatePlayer", "CreateHud", "RealtimeMatchClient", "NetworkGameplaySynchronizer", "RuntimeAssetBinder", "CreateButton", "RoomCodeInput"]) {
   if (!sceneBuilder.includes(symbol)) throw new Error(`ArenaSceneBuilder missing ${symbol}`);
 }
 
-for (const symbol of ["Validate Asset Readiness", "Create Recommended Asset Folders", "FindAssets"]) {
+for (const symbol of ["Validate Asset Readiness", "Create Recommended Asset Folders", "Create Asset Manifest", "CricketAssetManifest", "FindAssets"]) {
   if (!validator.includes(symbol)) throw new Error(`AssetReadinessValidator missing ${symbol}`);
+}
+
+for (const symbol of ["CricketAssetManifest", "stadiumPrefab", "batterPrefab", "bowlerPrefab", "HasPlayableCoreAssets"]) {
+  if (!manifest.includes(symbol)) throw new Error(`CricketAssetManifest missing ${symbol}`);
+}
+
+for (const symbol of ["RuntimeAssetBinder", "ApplyManifest", "PlayBatHit", "PlayWicket", "PlayBoundary"]) {
+  if (!binder.includes(symbol)) throw new Error(`RuntimeAssetBinder missing ${symbol}`);
+}
+
+for (const symbol of ["RuntimeAssetBinder", "PlayBoundary", "PlayWicket"]) {
+  if (!impact.includes(symbol)) throw new Error(`ImpactVfxController missing ${symbol}`);
 }
 
 for (const symbol of ["Configure Android Mobile Build", "IL2CPP", "ARM64"]) {

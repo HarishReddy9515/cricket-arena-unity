@@ -38,6 +38,7 @@ namespace CricketArena.EditorTools
             var batting = game.AddComponent<BattingController>();
             var bowling = game.AddComponent<BowlingController>();
             var cameraDirector = game.AddComponent<CameraDirector>();
+            var assetBinder = game.AddComponent<RuntimeAssetBinder>();
             var networkClient = game.AddComponent<RealtimeMatchClient>();
             var networkSync = game.AddComponent<NetworkGameplaySynchronizer>();
 
@@ -54,6 +55,24 @@ namespace CricketArena.EditorTools
             GameObject batter = CreatePlayer("Batter", blue, white, new Vector3(0, 0, 21.5f));
             GameObject bowler = CreatePlayer("Bowler", red, white, new Vector3(0, 0, -22f));
             bowler.transform.rotation = Quaternion.Euler(0, 180, 0);
+            GameObject stadiumMount = new GameObject("StadiumAssetMount");
+            GameObject batterMount = new GameObject("BatterAssetMount");
+            GameObject bowlerMount = new GameObject("BowlerAssetMount");
+            GameObject batMount = new GameObject("BatAssetMount");
+            GameObject wicketMount = new GameObject("WicketAssetMount");
+            stadiumMount.transform.position = Vector3.zero;
+            batterMount.transform.position = batter.transform.position;
+            bowlerMount.transform.position = bowler.transform.position;
+            batMount.transform.position = new Vector3(0.45f, 1.15f, 21.25f);
+            wicketMount.transform.position = new Vector3(0, 0.45f, 22.4f);
+
+            var crowdAudio = game.AddComponent<AudioSource>();
+            crowdAudio.playOnAwake = false;
+            crowdAudio.spatialBlend = 0f;
+            crowdAudio.volume = 0.28f;
+            var effectsAudio = ball.AddComponent<AudioSource>();
+            effectsAudio.playOnAwake = false;
+            effectsAudio.spatialBlend = 0.85f;
 
             GameObject contact = new GameObject("ContactPoint");
             contact.transform.position = new Vector3(0, 0.85f, 20.7f);
@@ -102,6 +121,16 @@ namespace CricketArena.EditorTools
             SetObject(cameraObj, "replayCamera", replayCam.transform);
             cameraObj.ApplyModifiedPropertiesWithoutUndo();
 
+            SerializedObject assetBinderObj = new SerializedObject(assetBinder);
+            SetObject(assetBinderObj, "stadiumMount", stadiumMount.transform);
+            SetObject(assetBinderObj, "batterMount", batterMount.transform);
+            SetObject(assetBinderObj, "bowlerMount", bowlerMount.transform);
+            SetObject(assetBinderObj, "batMount", batMount.transform);
+            SetObject(assetBinderObj, "wicketMount", wicketMount.transform);
+            SetObject(assetBinderObj, "crowdAudio", crowdAudio);
+            SetObject(assetBinderObj, "effectsAudio", effectsAudio);
+            assetBinderObj.ApplyModifiedPropertiesWithoutUndo();
+
             SerializedObject networkSyncObj = new SerializedObject(networkSync);
             SetObject(networkSyncObj, "client", networkClient);
             SetObject(networkSyncObj, "matchManager", match);
@@ -115,6 +144,7 @@ namespace CricketArena.EditorTools
 
             SerializedObject vfxObj = new SerializedObject(impactVfx);
             SetObject(vfxObj, "cameraDirector", cameraDirector);
+            SetObject(vfxObj, "assetBinder", assetBinder);
             vfxObj.ApplyModifiedPropertiesWithoutUndo();
 
             Selection.activeObject = game;
