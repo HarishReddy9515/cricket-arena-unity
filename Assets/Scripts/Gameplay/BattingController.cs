@@ -17,6 +17,7 @@ namespace CricketArena.Gameplay
         [SerializeField] private MatchManager matchManager;
         [SerializeField] private BallPhysicsController ballPhysics;
         [SerializeField] private Animator batterAnimator;
+        [SerializeField] private PlayerAnimationDirector animationDirector;
         [SerializeField] private MobileHaptics haptics;
         [SerializeField] private CricketArena.Presentation.ImpactVfxController impactVfx;
         [SerializeField] private CricketArena.Core.ReplayRecorder replayRecorder;
@@ -53,7 +54,11 @@ namespace CricketArena.Gameplay
             float quality = Mathf.Clamp01(contactQuality * 0.62f + timingQuality * 0.38f);
 
             ShotOutcome outcome = ResolveOutcome(quality);
-            batterAnimator?.SetTrigger(intent == ShotIntent.Defensive ? "Defend" : "Hit");
+            animationDirector?.PlayShot(intent, outcome);
+            if (animationDirector == null)
+            {
+                batterAnimator?.SetTrigger(intent == ShotIntent.Defensive ? "Defend" : "Hit");
+            }
             ballPhysics.ResolveShot(outcome.Power, DirectionForIntent(intent));
             haptics?.PlayShotFeedback(outcome);
             impactVfx?.Play(outcome);

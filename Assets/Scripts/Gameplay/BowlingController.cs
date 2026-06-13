@@ -1,4 +1,5 @@
 using CricketArena.Core;
+using CricketArena.Presentation;
 using UnityEngine;
 
 namespace CricketArena.Gameplay
@@ -8,6 +9,7 @@ namespace CricketArena.Gameplay
         [SerializeField] private MatchManager matchManager;
         [SerializeField] private BallPhysicsController ballPhysics;
         [SerializeField] private Animator bowlerAnimator;
+        [SerializeField] private PlayerAnimationDirector animationDirector;
         [SerializeField] private Transform releasePoint;
         [SerializeField] private Transform targetPoint;
 
@@ -22,7 +24,7 @@ namespace CricketArena.Gameplay
             }
 
             DeliveryProfile delivery = ChooseDelivery();
-            bowlerAnimator?.SetTrigger("Bowl");
+            PlayBowlingAnimation(delivery);
             ballPhysics.Launch(releasePoint.position, targetPoint.position, delivery);
             matchManager.MarkDeliveryLive();
         }
@@ -34,9 +36,18 @@ namespace CricketArena.Gameplay
                 return;
             }
 
-            bowlerAnimator?.SetTrigger("Bowl");
+            PlayBowlingAnimation(delivery);
             ballPhysics.Launch(releasePoint.position, targetPoint.position, delivery);
             matchManager.MarkDeliveryLive();
+        }
+
+        private void PlayBowlingAnimation(DeliveryProfile delivery)
+        {
+            animationDirector?.PlayBowling(delivery);
+            if (animationDirector == null)
+            {
+                bowlerAnimator?.SetTrigger("Bowl");
+            }
         }
 
         private DeliveryProfile ChooseDelivery()

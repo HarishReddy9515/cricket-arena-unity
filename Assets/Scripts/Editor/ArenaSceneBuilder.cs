@@ -39,6 +39,7 @@ namespace CricketArena.EditorTools
             var bowling = game.AddComponent<BowlingController>();
             var cameraDirector = game.AddComponent<CameraDirector>();
             var assetBinder = game.AddComponent<RuntimeAssetBinder>();
+            var animationDirector = game.AddComponent<PlayerAnimationDirector>();
             var networkClient = game.AddComponent<RealtimeMatchClient>();
             var networkSync = game.AddComponent<NetworkGameplaySynchronizer>();
 
@@ -55,6 +56,8 @@ namespace CricketArena.EditorTools
             GameObject batter = CreatePlayer("Batter", blue, white, new Vector3(0, 0, 21.5f));
             GameObject bowler = CreatePlayer("Bowler", red, white, new Vector3(0, 0, -22f));
             bowler.transform.rotation = Quaternion.Euler(0, 180, 0);
+            Animator batterAnimator = batter.AddComponent<Animator>();
+            Animator bowlerAnimator = bowler.AddComponent<Animator>();
             GameObject stadiumMount = new GameObject("StadiumAssetMount");
             GameObject batterMount = new GameObject("BatterAssetMount");
             GameObject bowlerMount = new GameObject("BowlerAssetMount");
@@ -96,6 +99,8 @@ namespace CricketArena.EditorTools
             SerializedObject battingObj = new SerializedObject(batting);
             SetObject(battingObj, "matchManager", match);
             SetObject(battingObj, "ballPhysics", ballPhysics);
+            SetObject(battingObj, "batterAnimator", batterAnimator);
+            SetObject(battingObj, "animationDirector", animationDirector);
             SetObject(battingObj, "contactPoint", contact.transform);
             SetObject(battingObj, "haptics", haptics);
             SetObject(battingObj, "impactVfx", impactVfx);
@@ -105,6 +110,8 @@ namespace CricketArena.EditorTools
             SerializedObject bowlingObj = new SerializedObject(bowling);
             SetObject(bowlingObj, "matchManager", match);
             SetObject(bowlingObj, "ballPhysics", ballPhysics);
+            SetObject(bowlingObj, "bowlerAnimator", bowlerAnimator);
+            SetObject(bowlingObj, "animationDirector", animationDirector);
             SetObject(bowlingObj, "releasePoint", release.transform);
             SetObject(bowlingObj, "targetPoint", target.transform);
             SetDeliveries(bowlingObj);
@@ -130,6 +137,12 @@ namespace CricketArena.EditorTools
             SetObject(assetBinderObj, "crowdAudio", crowdAudio);
             SetObject(assetBinderObj, "effectsAudio", effectsAudio);
             assetBinderObj.ApplyModifiedPropertiesWithoutUndo();
+
+            SerializedObject animationObj = new SerializedObject(animationDirector);
+            SetObject(animationObj, "batterAnimator", batterAnimator);
+            SetObject(animationObj, "bowlerAnimator", bowlerAnimator);
+            SetObject(animationObj, "matchManager", match);
+            animationObj.ApplyModifiedPropertiesWithoutUndo();
 
             SerializedObject networkSyncObj = new SerializedObject(networkSync);
             SetObject(networkSyncObj, "client", networkClient);

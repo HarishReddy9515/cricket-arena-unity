@@ -17,6 +17,7 @@ This is **not** a clone of Real Cricket, WCC, EA Sports FC, or PUBG. It is an or
 - WebSocket-style multiplayer client scaffold
 - asset pipeline folders for legal models, animations, audio, UI, and VFX
 - production asset manifest and runtime placeholder replacement
+- gameplay-driven animation parameter contract
 - Android/mobile build checklist
 
 ## Required Unity Setup
@@ -123,6 +124,10 @@ The server owns delivery selection and shot outcome resolution so clients cannot
 
 See [docs/ASSET_PIPELINE.md](docs/ASSET_PIPELINE.md). The project uses `CricketAssetManifest` and `RuntimeAssetBinder` so legal production models, animation controllers, materials, and audio can replace procedural placeholders cleanly.
 
+## Animation Pipeline
+
+See [docs/ANIMATION_PIPELINE.md](docs/ANIMATION_PIPELINE.md). `PlayerAnimationDirector` maps gameplay events to animator triggers and parameters for bowling, batting, wickets, celebrations, shot power, delivery speed, and match phase.
+
 ## Unity Multiplayer Flow
 
 The generated prototype scene now includes a `RealtimeMatchClient` and `MultiplayerLobbyController`.
@@ -164,6 +169,7 @@ Then open the generated Unity scene, press **Connect**, enter or keep `ARENA-24`
 - replay highlights
 - impact VFX and stadium audio hooks
 - production asset manifest and runtime placeholder replacement
+- gameplay-driven animation parameter contract
 
 ## Current Status
 

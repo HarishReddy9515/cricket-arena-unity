@@ -17,6 +17,7 @@ const requiredFiles = [
   "Assets/Scripts/Presentation/CricketAssetManifest.cs",
   "Assets/Scripts/Presentation/MobileHaptics.cs",
   "Assets/Scripts/Presentation/ImpactVfxController.cs",
+  "Assets/Scripts/Presentation/PlayerAnimationDirector.cs",
   "Assets/Scripts/Presentation/RuntimeAssetBinder.cs",
   "Assets/Scripts/Networking/RealtimeMatchClient.cs",
   "Assets/Scripts/Networking/MatchProtocol.cs",
@@ -50,6 +51,7 @@ const replay = fs.readFileSync(path.join(root, "Assets/Scripts/Core/ReplayRecord
 const manifest = fs.readFileSync(path.join(root, "Assets/Scripts/Presentation/CricketAssetManifest.cs"), "utf8");
 const binder = fs.readFileSync(path.join(root, "Assets/Scripts/Presentation/RuntimeAssetBinder.cs"), "utf8");
 const impact = fs.readFileSync(path.join(root, "Assets/Scripts/Presentation/ImpactVfxController.cs"), "utf8");
+const animation = fs.readFileSync(path.join(root, "Assets/Scripts/Presentation/PlayerAnimationDirector.cs"), "utf8");
 
 for (const symbol of ["MatchPhase", "ApplyOutcome", "OnScoreChanged", "SyncAuthoritativeState"]) {
   if (!matchManager.includes(symbol)) throw new Error(`MatchManager missing ${symbol}`);
@@ -59,8 +61,16 @@ for (const symbol of ["ShotIntent", "PlayShot", "ResolveOutcome", "MobileHaptics
   if (!batting.includes(symbol)) throw new Error(`BattingController missing ${symbol}`);
 }
 
+if (!batting.includes("PlayerAnimationDirector")) {
+  throw new Error("BattingController missing PlayerAnimationDirector");
+}
+
 for (const symbol of ["Launch", "ResolveShot", "Rigidbody"]) {
   if (!ball.includes(symbol)) throw new Error(`BallPhysicsController missing ${symbol}`);
+}
+
+if (!fs.readFileSync(path.join(root, "Assets/Scripts/Gameplay/BowlingController.cs"), "utf8").includes("PlayerAnimationDirector")) {
+  throw new Error("BowlingController missing PlayerAnimationDirector");
 }
 
 for (const symbol of ["ClientWebSocket", "ConnectAsync", "SendAsync", "ReceiveLoop", "Disconnect", "JoinRoom", "SetReady", "RequestDelivery", "SendShot", "ReceiveJson", "LastOutboundJson"]) {
@@ -97,6 +107,10 @@ for (const symbol of ["CricketAssetManifest", "stadiumPrefab", "batterPrefab", "
 
 for (const symbol of ["RuntimeAssetBinder", "ApplyManifest", "PlayBatHit", "PlayWicket", "PlayBoundary"]) {
   if (!binder.includes(symbol)) throw new Error(`RuntimeAssetBinder missing ${symbol}`);
+}
+
+for (const symbol of ["PlayerAnimationDirector", "PlayBowling", "PlayShot", "DeliverySpeed", "ShotIntent", "MatchPhase"]) {
+  if (!animation.includes(symbol)) throw new Error(`PlayerAnimationDirector missing ${symbol}`);
 }
 
 for (const symbol of ["RuntimeAssetBinder", "PlayBoundary", "PlayWicket"]) {
