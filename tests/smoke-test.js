@@ -87,7 +87,7 @@ if (!fs.readFileSync(path.join(root, "Assets/Scripts/Gameplay/BowlingController.
   throw new Error("BowlingController missing PlayerAnimationDirector");
 }
 
-for (const symbol of ["ClientWebSocket", "ConnectAsync", "SendAsync", "ReceiveLoop", "Disconnect", "JoinRoom", "SetReady", "RequestDelivery", "SendShot", "ReceiveJson", "LastOutboundJson", "LastLatencyMs", "OnServerError"]) {
+for (const symbol of ["ClientWebSocket", "ConnectAsync", "SendAsync", "ReceiveLoop", "Disconnect", "JoinRoom", "SetReady", "RequestDelivery", "SendShot", "ReceiveJson", "LastOutboundJson", "LastLatencyMs", "OnServerError", "ScheduleReconnect", "ReconnectAttempts", "heartbeatIntervalSeconds"]) {
   if (!network.includes(symbol)) throw new Error(`RealtimeMatchClient missing ${symbol}`);
 }
 
@@ -99,11 +99,11 @@ for (const symbol of ["NetworkGameplaySynchronizer", "HandleDelivery", "HandleMa
   if (!networkSync.includes(symbol)) throw new Error(`NetworkGameplaySynchronizer missing ${symbol}`);
 }
 
-for (const symbol of ["MultiplayerLobbyController", "Ready", "RequestDelivery", "SetShotTiming"]) {
+for (const symbol of ["MultiplayerLobbyController", "Ready", "RequestDelivery", "SetShotTiming", "OnServerError", "LastLatencyMs"]) {
   if (!lobby.includes(symbol)) throw new Error(`MultiplayerLobbyController missing ${symbol}`);
 }
 
-for (const symbol of ["join_room", "request_delivery", "resolveOutcome", "match_state", "sanitizeRoomCode", "MAX_ROOM_PLAYERS", "cleanupRooms"]) {
+for (const symbol of ["join_room", "request_delivery", "resolveOutcome", "match_state", "sanitizeRoomCode", "MAX_ROOM_PLAYERS", "cleanupRooms", "RATE_LIMIT_MAX_MESSAGES", "/metrics", "decodeFrames"]) {
   if (!server.includes(symbol)) throw new Error(`authoritative-server missing ${symbol}`);
 }
 

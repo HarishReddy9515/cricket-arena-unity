@@ -23,6 +23,7 @@ namespace CricketArena.UI
                 client.OnMessage += SetStatus;
                 client.OnDelivery += OnDelivery;
                 client.OnMatchState += OnMatchState;
+                client.OnServerError += OnServerError;
             }
         }
 
@@ -33,6 +34,7 @@ namespace CricketArena.UI
                 client.OnMessage -= SetStatus;
                 client.OnDelivery -= OnDelivery;
                 client.OnMatchState -= OnMatchState;
+                client.OnServerError -= OnServerError;
             }
         }
 
@@ -101,7 +103,13 @@ namespace CricketArena.UI
         private void OnMatchState(DeliveryMessage message)
         {
             if (message?.room == null) return;
-            SetStatus($"{message.room.code} {message.room.score}/{message.room.wickets} after {message.room.balls}");
+            SetStatus($"{message.room.code} {message.room.score}/{message.room.wickets} after {message.room.balls} | {client?.LastLatencyMs ?? 0}ms");
+        }
+
+        private void OnServerError(ErrorMessage message)
+        {
+            if (message == null) return;
+            SetStatus($"{message.code}: {message.message}");
         }
 
         private void SetStatus(string value)

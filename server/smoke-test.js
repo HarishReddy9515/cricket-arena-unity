@@ -1,5 +1,5 @@
 const http = require("http");
-const { server, resolveOutcome } = require("./authoritative-server");
+const { server, resolveOutcome, sanitizeRoomCode } = require("./authoritative-server");
 
 const PORT = 8791;
 
@@ -7,6 +7,11 @@ server.listen(PORT, async () => {
   try {
     const health = await getJson(`http://localhost:${PORT}/health`);
     if (!health.ok) throw new Error("Health endpoint did not return ok.");
+
+    const metrics = await getJson(`http://localhost:${PORT}/metrics`);
+    if (typeof metrics.startedAt !== "number") throw new Error("Metrics endpoint missing startedAt.");
+
+    if (sanitizeRoomCode("team one!!") !== "TEAMONE") throw new Error("Room code sanitizer failed.");
 
     const boundary = resolveOutcome(0.5, "straight", { difficulty: 0.66 });
     if (boundary.runs < 4) throw new Error("Perfect timing should produce a boundary-style outcome.");

@@ -4,8 +4,19 @@ const http = require("http");
 const PORT = Number(process.env.PORT || 8790);
 const ROOM_TTL_MS = Number(process.env.ROOM_TTL_MS || 10 * 60 * 1000);
 const MAX_ROOM_PLAYERS = Number(process.env.MAX_ROOM_PLAYERS || 2);
+const RATE_LIMIT_WINDOW_MS = Number(process.env.RATE_LIMIT_WINDOW_MS || 1000);
+const RATE_LIMIT_MAX_MESSAGES = Number(process.env.RATE_LIMIT_MAX_MESSAGES || 24);
 const clients = new Map();
 const rooms = new Map();
+const metrics = {
+  startedAt: Date.now(),
+  connections: 0,
+  messages: 0,
+  rejectedMessages: 0,
+  deliveries: 0,
+  shots: 0,
+  completedRooms: 0
+};
 
 const deliveries = [
   { name: "Fast yorker", speed: 31, swing: -0.08, bounce: 0.38, difficulty: 0.86 },
@@ -16,7 +27,17 @@ const deliveries = [
 
 const server = http.createServer((req, res) => {
   if (req.url === "/health") {
-    writeJson(res, 200, { ok: true, clients: clients.size, rooms: rooms.size });
+    writeJson(res, 200, { ok: true, clients: clients.size, rooms: rooms.size, uptimeMs: Date.now() - metrics.startedAt });
+    return;
+  }
+
+  if (req.url === "/metrics") {
+    writeJson(res, 200, {
+      ...metrics,
+      uptimeMs: Date.now() - metrics.startedAt,
+      activeClients: clients.size,
+      activeRooms: rooms.size
+    });
     return;
   }
 
@@ -57,13 +78,15 @@ server.on("upgrade", (req, socket) => {
   ].join("\r\n"));
 
   const id = crypto.randomUUID();
-  clients.set(socket, { id, roomCode: null, ready: false });
+  clients.set(socket, { id, roomCode: null, ready: false, rateWindowStartedAt: Date.now(), rateCount: 0 });
+  metrics.connections += 1;
   send(socket, { type: "connected", playerId: id });
 
   socket.on("data", (buffer) => {
-    const message = decodeFrame(buffer);
-    if (!message) return;
-    handleMessage(socket, safeJson(message));
+    for (const message of decodeFrames(buffer)) {
+      if (!message) continue;
+      handleMessage(socket, safeJson(message));
+    }
   });
 
   socket.on("close", () => leave(socket));
@@ -73,6 +96,8 @@ server.on("upgrade", (req, socket) => {
 function handleMessage(socket, message) {
   const client = clients.get(socket);
   if (!client || !message.type) return;
+  if (!allowMessage(socket, client, message.type)) return;
+  metrics.messages += 1;
 
   if (message.type === "join_room") {
     const code = sanitizeRoomCode(message.roomCode || "ARENA-24");
@@ -102,8 +127,8 @@ function handleMessage(socket, message) {
   if (message.type === "request_delivery") {
     const room = currentRoom(client);
     if (room && room.status === "live") {
-      touch(room);
-      queueDelivery(room);
+    touch(room);
+    queueDelivery(room);
     }
   }
 
@@ -119,13 +144,30 @@ function handleMessage(socket, message) {
     room.delivery = null;
     if (room.score >= room.target || room.balls >= 6 || room.wickets >= 2) {
       room.status = "finished";
+      metrics.completedRooms += 1;
     }
+    metrics.shots += 1;
     broadcastRoom(room, { type: "match_state", room: publicRoom(room), outcome });
   }
 
   if (message.type === "ping") {
     send(socket, { type: "pong", clientTime: message.clientTime || Date.now(), serverTime: Date.now() });
   }
+}
+
+function allowMessage(socket, client, type) {
+  const now = Date.now();
+  if (now - client.rateWindowStartedAt > RATE_LIMIT_WINDOW_MS) {
+    client.rateWindowStartedAt = now;
+    client.rateCount = 0;
+  }
+
+  client.rateCount += 1;
+  if (client.rateCount <= RATE_LIMIT_MAX_MESSAGES) return true;
+
+  metrics.rejectedMessages += 1;
+  send(socket, { type: "error", code: "rate_limited", message: `Too many ${type} messages` });
+  return false;
 }
 
 function getRoom(code) {
@@ -164,6 +206,7 @@ function queueDelivery(room) {
   if (room.status !== "live") return;
   const need = room.target - room.score;
   room.delivery = need <= 6 ? deliveries[0] : deliveries[Math.floor(Math.random() * deliveries.length)];
+  metrics.deliveries += 1;
   broadcastRoom(room, { type: "delivery", delivery: room.delivery, room: publicRoom(room) });
 }
 
@@ -241,23 +284,34 @@ function safeJson(message) {
   }
 }
 
-function decodeFrame(buffer) {
-  const second = buffer[1];
-  let length = second & 127;
-  let offset = 2;
-  if (length === 126) {
-    length = buffer.readUInt16BE(offset);
-    offset += 2;
-  } else if (length === 127) {
-    length = Number(buffer.readBigUInt64BE(offset));
-    offset += 8;
+function decodeFrames(buffer) {
+  const messages = [];
+  let cursor = 0;
+
+  while (cursor < buffer.length) {
+    const second = buffer[cursor + 1];
+    if (second === undefined) break;
+    let length = second & 127;
+    let offset = cursor + 2;
+    if (length === 126) {
+      length = buffer.readUInt16BE(offset);
+      offset += 2;
+    } else if (length === 127) {
+      length = Number(buffer.readBigUInt64BE(offset));
+      offset += 8;
+    }
+
+    const isMasked = (second & 0x80) !== 0;
+    const mask = isMasked ? buffer.subarray(offset, offset + 4) : null;
+    offset += isMasked ? 4 : 0;
+    const data = buffer.subarray(offset, offset + length);
+    const decoded = Buffer.alloc(data.length);
+    for (let i = 0; i < data.length; i++) decoded[i] = mask ? data[i] ^ mask[i % 4] : data[i];
+    messages.push(decoded.toString("utf8"));
+    cursor = offset + length;
   }
-  const mask = buffer.subarray(offset, offset + 4);
-  offset += 4;
-  const data = buffer.subarray(offset, offset + length);
-  const decoded = Buffer.alloc(data.length);
-  for (let i = 0; i < data.length; i++) decoded[i] = data[i] ^ mask[i % 4];
-  return decoded.toString("utf8");
+
+  return messages;
 }
 
 function encodeFrame(message) {
@@ -288,4 +342,4 @@ if (require.main === module) {
   setInterval(cleanupRooms, 30_000).unref();
 }
 
-module.exports = { server, resolveOutcome, sanitizeRoomCode, cleanupRooms };
+module.exports = { server, resolveOutcome, sanitizeRoomCode, cleanupRooms, metrics };

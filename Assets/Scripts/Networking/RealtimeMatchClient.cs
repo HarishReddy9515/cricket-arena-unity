@@ -14,6 +14,10 @@ namespace CricketArena.Networking
     {
         [SerializeField] private string serverUrl = "ws://localhost:8790";
         [SerializeField] private string defaultRoomCode = "ARENA-24";
+        [SerializeField] private bool autoReconnect = true;
+        [SerializeField] private float heartbeatIntervalSeconds = 5f;
+        [SerializeField] private float reconnectDelaySeconds = 2f;
+        [SerializeField] private int maxReconnectAttempts = 5;
 
         public bool IsConnected { get; private set; }
         public string RoomCode { get; private set; }
@@ -21,6 +25,7 @@ namespace CricketArena.Networking
         public string LastOutboundJson { get; private set; }
         public string LastInboundJson { get; private set; }
         public long LastLatencyMs { get; private set; }
+        public int ReconnectAttempts { get; private set; }
 
         public event Action<string> OnMessage;
         public event Action<DeliveryMessage> OnDelivery;
@@ -33,9 +38,22 @@ namespace CricketArena.Networking
 #endif
         private readonly ConcurrentQueue<string> inboundQueue = new ConcurrentQueue<string>();
         private readonly ConcurrentQueue<string> statusQueue = new ConcurrentQueue<string>();
+        private float nextHeartbeatAt;
+        private float nextReconnectAt;
+        private bool userRequestedDisconnect;
 
         private void Update()
         {
+            if (IsConnected && Time.unscaledTime >= nextHeartbeatAt)
+            {
+                Ping();
+            }
+
+            if (!IsConnected && autoReconnect && !userRequestedDisconnect && ReconnectAttempts > 0 && Time.unscaledTime >= nextReconnectAt)
+            {
+                Connect();
+            }
+
             while (statusQueue.TryDequeue(out string status))
             {
                 OnMessage?.Invoke(status);
@@ -54,13 +72,15 @@ namespace CricketArena.Networking
 
         public async void Connect()
         {
+            userRequestedDisconnect = false;
 #if UNITY_WEBGL
             IsConnected = true;
             statusQueue.Enqueue("WebGL requires a browser WebSocket plugin transport.");
-            Send(MatchMessage.Ping(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()));
+            Ping();
 #else
             if (IsConnected) return;
 
+            DisposeSocket();
             cancellation = new CancellationTokenSource();
             socket = new ClientWebSocket();
 
@@ -68,21 +88,25 @@ namespace CricketArena.Networking
             {
                 await socket.ConnectAsync(new Uri(serverUrl), cancellation.Token);
                 IsConnected = true;
+                ReconnectAttempts = 0;
+                nextHeartbeatAt = Time.unscaledTime + heartbeatIntervalSeconds;
                 statusQueue.Enqueue($"Connected to {serverUrl}");
                 _ = ReceiveLoop(cancellation.Token);
-                Send(MatchMessage.Ping(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()));
+                Ping();
             }
             catch (Exception ex)
             {
                 IsConnected = false;
                 statusQueue.Enqueue($"Connection failed: {ex.Message}");
                 DisposeSocket();
+                ScheduleReconnect();
             }
 #endif
         }
 
         public async void Disconnect()
         {
+            userRequestedDisconnect = true;
 #if !UNITY_WEBGL
             try
             {
@@ -102,6 +126,12 @@ namespace CricketArena.Networking
 #else
             IsConnected = false;
 #endif
+        }
+
+        public void Ping()
+        {
+            nextHeartbeatAt = Time.unscaledTime + heartbeatIntervalSeconds;
+            Send(MatchMessage.Ping(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()));
         }
 
         public void JoinRoom(string roomCode)
@@ -197,6 +227,7 @@ namespace CricketArena.Networking
                     {
                         IsConnected = false;
                         statusQueue.Enqueue("Server closed connection.");
+                        ScheduleReconnect();
                         return;
                     }
 
@@ -215,9 +246,18 @@ namespace CricketArena.Networking
                 {
                     IsConnected = false;
                     statusQueue.Enqueue($"Receive failed: {ex.Message}");
+                    ScheduleReconnect();
                     return;
                 }
             }
+        }
+
+        private void ScheduleReconnect()
+        {
+            if (!autoReconnect || userRequestedDisconnect || ReconnectAttempts >= maxReconnectAttempts) return;
+            ReconnectAttempts += 1;
+            nextReconnectAt = Time.unscaledTime + reconnectDelaySeconds * ReconnectAttempts;
+            statusQueue.Enqueue($"Reconnect scheduled ({ReconnectAttempts}/{maxReconnectAttempts})");
         }
 
         private void DisposeSocket()

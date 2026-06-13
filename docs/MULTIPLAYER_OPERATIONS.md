@@ -10,6 +10,7 @@ The authoritative Node server owns room state, delivery selection, and shot outc
 - `MAX_ROOM_PLAYERS` defaults to `2`.
 - `ROOM_TTL_MS` defaults to 10 minutes.
 - Stale rooms are cleaned up automatically when the standalone server is running.
+- Clients are rate limited per message window to reduce spam and accidental duplicate input.
 
 ## Environment Variables
 
@@ -17,7 +18,19 @@ The authoritative Node server owns room state, delivery selection, and shot outc
 PORT=8790
 MAX_ROOM_PLAYERS=2
 ROOM_TTL_MS=600000
+RATE_LIMIT_WINDOW_MS=1000
+RATE_LIMIT_MAX_MESSAGES=24
 ```
+
+## Server Endpoints
+
+```text
+GET /health
+GET /rooms
+GET /metrics
+```
+
+`/metrics` exposes uptime, active clients, active rooms, total connections, messages, rejected messages, deliveries, shots, and completed rooms.
 
 ## Client Telemetry
 
@@ -27,6 +40,9 @@ Unity `RealtimeMatchClient` tracks:
 - `LastLatencyMs`
 - server error messages
 - last inbound and outbound JSON payloads for debugging
+- reconnect attempts
+
+The client sends heartbeat pings and can reconnect with backoff when the connection drops unexpectedly.
 
 ## Validation
 
