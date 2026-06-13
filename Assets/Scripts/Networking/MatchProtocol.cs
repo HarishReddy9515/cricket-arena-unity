@@ -12,6 +12,31 @@ namespace CricketArena.Networking
         public float timing;
         public string intent;
         public long clientTime;
+
+        public static MatchMessage JoinRoom(string roomCode)
+        {
+            return new MatchMessage { type = MatchEvents.JoinRoom, roomCode = roomCode };
+        }
+
+        public static MatchMessage Ready(bool value)
+        {
+            return new MatchMessage { type = MatchEvents.Ready, ready = value };
+        }
+
+        public static MatchMessage RequestDelivery()
+        {
+            return new MatchMessage { type = MatchEvents.RequestDelivery };
+        }
+
+        public static MatchMessage Shot(float timing, string intent)
+        {
+            return new MatchMessage { type = MatchEvents.Shot, timing = timing, intent = intent };
+        }
+
+        public static MatchMessage Ping(long clientTime)
+        {
+            return new MatchMessage { type = MatchEvents.Ping, clientTime = clientTime };
+        }
     }
 
     [Serializable]
@@ -41,5 +66,19 @@ namespace CricketArena.Networking
         public int score;
         public int wickets;
         public int balls;
+    }
+
+    public static class MatchEvents
+    {
+        public const string Connected = "connected";
+        public const string JoinRoom = "join_room";
+        public const string Ready = "ready";
+        public const string RequestDelivery = "request_delivery";
+        public const string Delivery = "delivery";
+        public const string Shot = "shot";
+        public const string MatchState = "match_state";
+        public const string RoomState = "room_state";
+        public const string Ping = "ping";
+        public const string Pong = "pong";
     }
 }

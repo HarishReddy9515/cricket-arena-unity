@@ -115,6 +115,20 @@ Protocol events:
 
 The server owns delivery selection and shot outcome resolution so clients cannot freely invent results.
 
+## Unity Multiplayer Flow
+
+The generated prototype scene now includes a `RealtimeMatchClient` and `MultiplayerLobbyController`.
+
+Scene controls:
+
+- Connect to the match server
+- Join a room code
+- Mark player ready
+- Request the next authoritative delivery
+- Send shot timing and intent back to the server
+
+`RealtimeMatchClient` currently produces and parses server-compatible JSON. Attach a production WebSocket transport such as NativeWebSocket, Mirror, Netcode for GameObjects, or a platform transport plugin to send `LastOutboundJson` and pass received payloads into `ReceiveJson`.
+
 ## Target Features
 
 - Real 3D stadium

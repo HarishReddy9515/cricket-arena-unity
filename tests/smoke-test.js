@@ -20,6 +20,7 @@ const requiredFiles = [
   "Assets/Scripts/Networking/MatchProtocol.cs",
   "Assets/Scripts/UI/ScoreHudController.cs",
   "Assets/Scripts/UI/MobileControlsController.cs",
+  "Assets/Scripts/UI/MultiplayerLobbyController.cs",
   "Assets/Scripts/Editor/ArenaSceneBuilder.cs",
   "Assets/Scripts/Editor/AssetReadinessValidator.cs",
   "Assets/Scripts/Editor/MobileBuildConfigurator.cs"
@@ -36,6 +37,7 @@ const batting = fs.readFileSync(path.join(root, "Assets/Scripts/Gameplay/Batting
 const ball = fs.readFileSync(path.join(root, "Assets/Scripts/Gameplay/BallPhysicsController.cs"), "utf8");
 const network = fs.readFileSync(path.join(root, "Assets/Scripts/Networking/RealtimeMatchClient.cs"), "utf8");
 const protocol = fs.readFileSync(path.join(root, "Assets/Scripts/Networking/MatchProtocol.cs"), "utf8");
+const lobby = fs.readFileSync(path.join(root, "Assets/Scripts/UI/MultiplayerLobbyController.cs"), "utf8");
 const server = fs.readFileSync(path.join(root, "server/authoritative-server.js"), "utf8");
 const sceneBuilder = fs.readFileSync(path.join(root, "Assets/Scripts/Editor/ArenaSceneBuilder.cs"), "utf8");
 const validator = fs.readFileSync(path.join(root, "Assets/Scripts/Editor/AssetReadinessValidator.cs"), "utf8");
@@ -54,19 +56,23 @@ for (const symbol of ["Launch", "ResolveShot", "Rigidbody"]) {
   if (!ball.includes(symbol)) throw new Error(`BallPhysicsController missing ${symbol}`);
 }
 
-for (const symbol of ["Connect", "JoinRoom", "SendShot"]) {
+for (const symbol of ["Connect", "JoinRoom", "SetReady", "RequestDelivery", "SendShot", "ReceiveJson", "LastOutboundJson"]) {
   if (!network.includes(symbol)) throw new Error(`RealtimeMatchClient missing ${symbol}`);
 }
 
-for (const symbol of ["MatchMessage", "DeliveryDto", "RoomDto"]) {
+for (const symbol of ["MatchMessage", "DeliveryDto", "RoomDto", "MatchEvents", "request_delivery"]) {
   if (!protocol.includes(symbol)) throw new Error(`MatchProtocol missing ${symbol}`);
+}
+
+for (const symbol of ["MultiplayerLobbyController", "Ready", "RequestDelivery", "SetShotTiming"]) {
+  if (!lobby.includes(symbol)) throw new Error(`MultiplayerLobbyController missing ${symbol}`);
 }
 
 for (const symbol of ["join_room", "request_delivery", "resolveOutcome", "match_state"]) {
   if (!server.includes(symbol)) throw new Error(`authoritative-server missing ${symbol}`);
 }
 
-for (const symbol of ["MenuItem", "BuildScene", "CreateStadium", "CreatePlayer", "CreateHud"]) {
+for (const symbol of ["MenuItem", "BuildScene", "CreateStadium", "CreatePlayer", "CreateHud", "RealtimeMatchClient", "CreateButton", "RoomCodeInput"]) {
   if (!sceneBuilder.includes(symbol)) throw new Error(`ArenaSceneBuilder missing ${symbol}`);
 }
 

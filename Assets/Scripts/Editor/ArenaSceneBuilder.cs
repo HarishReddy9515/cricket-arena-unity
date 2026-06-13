@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using CricketArena.Core;
 using CricketArena.Gameplay;
+using CricketArena.Networking;
 using CricketArena.Presentation;
 using CricketArena.UI;
 using UnityEditor;
@@ -37,6 +38,7 @@ namespace CricketArena.EditorTools
             var batting = game.AddComponent<BattingController>();
             var bowling = game.AddComponent<BowlingController>();
             var cameraDirector = game.AddComponent<CameraDirector>();
+            var networkClient = game.AddComponent<RealtimeMatchClient>();
 
             GameObject ball = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             ball.name = "Ball";
@@ -69,7 +71,7 @@ namespace CricketArena.EditorTools
             mainCamera.gameObject.tag = "MainCamera";
             mainCamera.gameObject.AddComponent<AudioListener>();
 
-            GameObject ui = CreateHud(match, batting, bowling);
+            GameObject ui = CreateHud(match, batting, bowling, networkClient);
 
             SerializedObject battingObj = new SerializedObject(batting);
             SetObject(battingObj, "matchManager", match);
@@ -206,7 +208,7 @@ namespace CricketArena.EditorTools
             return rig;
         }
 
-        private static GameObject CreateHud(MatchManager match, BattingController batting, BowlingController bowling)
+        private static GameObject CreateHud(MatchManager match, BattingController batting, BowlingController bowling, RealtimeMatchClient networkClient)
         {
             GameObject canvasObj = new GameObject("ScoreHUD");
             Canvas canvas = canvasObj.AddComponent<Canvas>();
@@ -216,6 +218,7 @@ namespace CricketArena.EditorTools
 
             GameObject scoreObj = CreateHudText("ScoreText", canvasObj.transform, "0/0", 34, new Vector2(0.04f, 0.88f), new Vector2(0.24f, 0.98f), TextAnchor.MiddleLeft);
             GameObject equationObj = CreateHudText("EquationText", canvasObj.transform, "24 from 6", 28, new Vector2(0.76f, 0.88f), new Vector2(0.96f, 0.98f), TextAnchor.MiddleRight);
+            GameObject networkObj = CreateHudText("NetworkStatusText", canvasObj.transform, "Offline", 18, new Vector2(0.04f, 0.78f), new Vector2(0.38f, 0.84f), TextAnchor.MiddleLeft);
             GameObject textObj = new GameObject("MessageText");
             textObj.transform.SetParent(canvasObj.transform);
             Text text = textObj.AddComponent<Text>();
@@ -240,6 +243,33 @@ namespace CricketArena.EditorTools
             SetObject(controlsObj, "bowlingController", bowling);
             controlsObj.ApplyModifiedPropertiesWithoutUndo();
 
+            InputField roomInput = CreateInput(canvasObj.transform, "ARENA-24", new Vector2(0.04f, 0.68f), new Vector2(0.28f, 0.75f));
+            CreateButton(canvasObj.transform, "ConnectButton", "Connect", new Vector2(0.04f, 0.59f), new Vector2(0.18f, 0.66f), nameof(MultiplayerLobbyController.Connect));
+            CreateButton(canvasObj.transform, "JoinButton", "Join", new Vector2(0.19f, 0.59f), new Vector2(0.31f, 0.66f), nameof(MultiplayerLobbyController.JoinRoom));
+            CreateButton(canvasObj.transform, "ReadyButton", "Ready", new Vector2(0.32f, 0.59f), new Vector2(0.44f, 0.66f), nameof(MultiplayerLobbyController.Ready));
+            CreateButton(canvasObj.transform, "DeliveryButton", "Delivery", new Vector2(0.04f, 0.50f), new Vector2(0.20f, 0.57f), nameof(MultiplayerLobbyController.RequestDelivery));
+            CreateButton(canvasObj.transform, "ShotButton", "Shot", new Vector2(0.21f, 0.50f), new Vector2(0.35f, 0.57f), nameof(MultiplayerLobbyController.SendShot));
+
+            var lobby = canvasObj.AddComponent<MultiplayerLobbyController>();
+            SerializedObject lobbyObj = new SerializedObject(lobby);
+            SetObject(lobbyObj, "client", networkClient);
+            SetObject(lobbyObj, "battingController", batting);
+            SetObject(lobbyObj, "bowlingController", bowling);
+            SetObject(lobbyObj, "roomCodeInput", roomInput);
+            SetObject(lobbyObj, "statusText", networkObj.GetComponent<Text>());
+            lobbyObj.ApplyModifiedPropertiesWithoutUndo();
+
+            foreach (Button button in canvasObj.GetComponentsInChildren<Button>())
+            {
+                button.onClick.RemoveAllListeners();
+                string method = button.gameObject.name.Replace("Button", string.Empty);
+                if (method == "Connect") button.onClick.AddListener(lobby.Connect);
+                if (method == "Join") button.onClick.AddListener(lobby.JoinRoom);
+                if (method == "Ready") button.onClick.AddListener(lobby.Ready);
+                if (method == "Delivery") button.onClick.AddListener(lobby.RequestDelivery);
+                if (method == "Shot") button.onClick.AddListener(lobby.SendShot);
+            }
+
             return canvasObj;
         }
 
@@ -259,6 +289,50 @@ namespace CricketArena.EditorTools
             rect.offsetMin = Vector2.zero;
             rect.offsetMax = Vector2.zero;
             return textObj;
+        }
+
+        private static InputField CreateInput(Transform parent, string value, Vector2 anchorMin, Vector2 anchorMax)
+        {
+            GameObject root = new GameObject("RoomCodeInput");
+            root.transform.SetParent(parent);
+            Image image = root.AddComponent<Image>();
+            image.color = new Color(0.04f, 0.06f, 0.08f, 0.86f);
+            RectTransform rect = root.GetComponent<RectTransform>();
+            rect.anchorMin = anchorMin;
+            rect.anchorMax = anchorMax;
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+
+            GameObject textObj = CreateHudText("Text", root.transform, value, 18, Vector2.zero, Vector2.one, TextAnchor.MiddleLeft);
+            Text text = textObj.GetComponent<Text>();
+            text.color = Color.white;
+            text.supportRichText = false;
+            text.rectTransform.offsetMin = new Vector2(12f, 0f);
+            text.rectTransform.offsetMax = new Vector2(-8f, 0f);
+
+            InputField field = root.AddComponent<InputField>();
+            field.text = value;
+            field.textComponent = text;
+            return field;
+        }
+
+        private static void CreateButton(Transform parent, string name, string label, Vector2 anchorMin, Vector2 anchorMax, string methodName)
+        {
+            GameObject root = new GameObject(name);
+            root.transform.SetParent(parent);
+            Image image = root.AddComponent<Image>();
+            image.color = new Color(0.03f, 0.32f, 0.75f, 0.9f);
+            RectTransform rect = root.GetComponent<RectTransform>();
+            rect.anchorMin = anchorMin;
+            rect.anchorMax = anchorMax;
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+
+            Button button = root.AddComponent<Button>();
+            button.transition = Selectable.Transition.ColorTint;
+
+            GameObject labelObj = CreateHudText($"{methodName}Label", root.transform, label, 16, Vector2.zero, Vector2.one, TextAnchor.MiddleCenter);
+            labelObj.GetComponent<Text>().color = Color.white;
         }
 
         private static Material Material(string name, Color color)
