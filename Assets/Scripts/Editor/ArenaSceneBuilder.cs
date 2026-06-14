@@ -29,6 +29,7 @@ namespace CricketArena.EditorTools
             CreateLighting();
             CreateGround(grass, pitch);
             CreateStadium();
+            CreateAtmosphere();
 
             GameObject game = new GameObject("Game");
             var match = game.AddComponent<MatchManager>();
@@ -245,6 +246,39 @@ namespace CricketArena.EditorTools
             }
         }
 
+        private static void CreateAtmosphere()
+        {
+            Material gold = Material("Arena Banner Gold", new Color(0.95f, 0.62f, 0.12f));
+            Material cyan = Material("Arena Crowd Cyan", new Color(0.05f, 0.45f, 0.70f));
+            Material navy = Material("Arena Crowd Navy", new Color(0.02f, 0.05f, 0.09f));
+
+            for (int i = 0; i < 12; i++)
+            {
+                float angle = (i / 12f) * Mathf.PI * 2f;
+                GameObject banner = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                banner.name = $"Arena Banner {i + 1}";
+                banner.transform.position = new Vector3(Mathf.Cos(angle) * 48f, 5.2f, Mathf.Sin(angle) * 48f);
+                banner.transform.rotation = Quaternion.Euler(0, -angle * Mathf.Rad2Deg, 0);
+                banner.transform.localScale = new Vector3(7.5f, 1.2f, 0.18f);
+                banner.GetComponent<Renderer>().sharedMaterial = i % 2 == 0 ? gold : cyan;
+            }
+
+            for (int ring = 0; ring < 2; ring++)
+            {
+                float radius = 63f + ring * 6f;
+                for (int i = 0; i < 36; i++)
+                {
+                    float angle = (i / 36f) * Mathf.PI * 2f;
+                    GameObject crowd = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    crowd.name = $"Crowd Color Band {ring + 1}-{i + 1}";
+                    crowd.transform.position = new Vector3(Mathf.Cos(angle) * radius, 6.4f + ring * 1.2f, Mathf.Sin(angle) * radius);
+                    crowd.transform.rotation = Quaternion.Euler(0, -angle * Mathf.Rad2Deg, 0);
+                    crowd.transform.localScale = new Vector3(2.2f, 0.9f, 0.32f);
+                    crowd.GetComponent<Renderer>().sharedMaterial = (i + ring) % 3 == 0 ? cyan : navy;
+                }
+            }
+        }
+
         private static GameObject CreatePlayer(string name, Material kit, Material legs, Vector3 position)
         {
             GameObject root = new GameObject(name);
@@ -368,6 +402,7 @@ namespace CricketArena.EditorTools
             lobbyObj.ApplyModifiedPropertiesWithoutUndo();
 
             var skin = canvasObj.AddComponent<ArenaLobbySkin>();
+            var loadout = canvasObj.AddComponent<LoadoutController>();
             SerializedObject skinObj = new SerializedObject(skin);
             SetObject(skinObj, "titleText", titleObj.GetComponent<Text>());
             SetObject(skinObj, "seasonText", seasonObj.GetComponent<Text>());
@@ -376,6 +411,14 @@ namespace CricketArena.EditorTools
             SetObject(skinObj, "loadoutText", loadoutObj.GetComponent<Text>());
             SetObject(skinObj, "primaryActionText", primaryActionObj.GetComponent<Text>());
             skinObj.ApplyModifiedPropertiesWithoutUndo();
+
+            CreateButton(rightPanel.transform, "BatLoadoutButton", "Bat", new Vector2(0.08f, 0.49f), new Vector2(0.31f, 0.57f), nameof(LoadoutController.NextBat));
+            CreateButton(rightPanel.transform, "KitLoadoutButton", "Kit", new Vector2(0.38f, 0.49f), new Vector2(0.61f, 0.57f), nameof(LoadoutController.NextKit));
+            CreateButton(rightPanel.transform, "BoostLoadoutButton", "Boost", new Vector2(0.68f, 0.49f), new Vector2(0.92f, 0.57f), nameof(LoadoutController.NextBoost));
+
+            SerializedObject loadoutObj = new SerializedObject(loadout);
+            SetObject(loadoutObj, "lobbySkin", skin);
+            loadoutObj.ApplyModifiedPropertiesWithoutUndo();
 
             SerializedObject screenObj = new SerializedObject(screenDirector);
             SetObject(screenObj, "cameraDirector", cameraDirector);
@@ -399,6 +442,9 @@ namespace CricketArena.EditorTools
                 if (method == "Delivery") button.onClick.AddListener(lobby.RequestDelivery);
                 if (method == "Shot") button.onClick.AddListener(lobby.SendShot);
                 if (method == "PrimaryPlay") button.onClick.AddListener(lobby.RequestDelivery);
+                if (method == "BatLoadout") button.onClick.AddListener(loadout.NextBat);
+                if (method == "KitLoadout") button.onClick.AddListener(loadout.NextKit);
+                if (method == "BoostLoadout") button.onClick.AddListener(loadout.NextBoost);
                 if (method == "QuickMatch") button.onClick.AddListener(modes.StartQuickMatch);
                 if (method == "PracticeNets") button.onClick.AddListener(modes.StartPracticeNets);
                 if (method == "Career") button.onClick.AddListener(modes.StartCareer);

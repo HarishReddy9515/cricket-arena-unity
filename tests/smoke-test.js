@@ -8,6 +8,7 @@ const requiredFiles = [
   "ProjectSettings/ProjectVersion.txt",
   "Assets/Scripts/Core/MatchManager.cs",
   "Assets/Scripts/Core/GameModeConfig.cs",
+  "Assets/Scripts/Core/PlayerLoadout.cs",
   "Assets/Scripts/Core/CareerProgressionManager.cs",
   "Assets/Scripts/Core/TournamentManager.cs",
   "Assets/Scripts/Core/ShotOutcome.cs",
@@ -33,6 +34,7 @@ const requiredFiles = [
   "Assets/Scripts/UI/GameModeMenuController.cs",
   "Assets/Scripts/UI/ArenaLobbySkin.cs",
   "Assets/Scripts/UI/ArenaScreenDirector.cs",
+  "Assets/Scripts/UI/LoadoutController.cs",
   "Assets/Scripts/Editor/ArenaSceneBuilder.cs",
   "Assets/Scripts/Editor/AssetReadinessValidator.cs",
   "Assets/Scripts/Editor/MobileBuildConfigurator.cs",
@@ -59,6 +61,7 @@ for (const file of requiredFiles) {
 
 const matchManager = fs.readFileSync(path.join(root, "Assets/Scripts/Core/MatchManager.cs"), "utf8");
 const gameMode = fs.readFileSync(path.join(root, "Assets/Scripts/Core/GameModeConfig.cs"), "utf8");
+const playerLoadout = fs.readFileSync(path.join(root, "Assets/Scripts/Core/PlayerLoadout.cs"), "utf8");
 const career = fs.readFileSync(path.join(root, "Assets/Scripts/Core/CareerProgressionManager.cs"), "utf8");
 const tournament = fs.readFileSync(path.join(root, "Assets/Scripts/Core/TournamentManager.cs"), "utf8");
 const batting = fs.readFileSync(path.join(root, "Assets/Scripts/Gameplay/BattingController.cs"), "utf8");
@@ -69,6 +72,7 @@ const networkSync = fs.readFileSync(path.join(root, "Assets/Scripts/Networking/N
 const lobby = fs.readFileSync(path.join(root, "Assets/Scripts/UI/MultiplayerLobbyController.cs"), "utf8");
 const modeMenu = fs.readFileSync(path.join(root, "Assets/Scripts/UI/GameModeMenuController.cs"), "utf8");
 const lobbySkin = fs.readFileSync(path.join(root, "Assets/Scripts/UI/ArenaLobbySkin.cs"), "utf8");
+const loadout = fs.readFileSync(path.join(root, "Assets/Scripts/UI/LoadoutController.cs"), "utf8");
 const server = fs.readFileSync(path.join(root, "server/authoritative-server.js"), "utf8");
 const sceneBuilder = fs.readFileSync(path.join(root, "Assets/Scripts/Editor/ArenaSceneBuilder.cs"), "utf8");
 const validator = fs.readFileSync(path.join(root, "Assets/Scripts/Editor/AssetReadinessValidator.cs"), "utf8");
@@ -90,6 +94,10 @@ for (const symbol of ["MatchPhase", "ApplyOutcome", "OnScoreChanged", "SyncAutho
 
 for (const symbol of ["CricketGameMode", "QuickMatch", "PracticeNets", "CareerChase", "TournamentChase", "OnlineRoom"]) {
   if (!gameMode.includes(symbol)) throw new Error(`GameModeConfig missing ${symbol}`);
+}
+
+for (const symbol of ["PlayerLoadout", "SquadName", "Bat", "Kit", "Boost", "Rating"]) {
+  if (!playerLoadout.includes(symbol)) throw new Error(`PlayerLoadout missing ${symbol}`);
 }
 
 for (const symbol of ["CareerProgressionManager", "StartCareerMatch", "SkillPoints", "OnCareerChanged"]) {
@@ -140,8 +148,12 @@ if (!modeMenu.includes("ArenaScreenDirector")) {
   throw new Error("GameModeMenuController missing ArenaScreenDirector");
 }
 
-for (const symbol of ["ArenaLobbySkin", "panelColor", "accentColor", "primaryActionText", "Apply"]) {
+for (const symbol of ["ArenaLobbySkin", "PlayerLoadout", "SetLoadout", "panelColor", "accentColor", "primaryActionText", "Apply"]) {
   if (!lobbySkin.includes(symbol)) throw new Error(`ArenaLobbySkin missing ${symbol}`);
+}
+
+for (const symbol of ["LoadoutController", "NextBat", "NextKit", "NextBoost", "AddReward"]) {
+  if (!loadout.includes(symbol)) throw new Error(`LoadoutController missing ${symbol}`);
 }
 
 for (const symbol of ["ArenaScreenDirector", "ShowLobby", "ShowGameplay", "CanvasGroup"]) {
@@ -152,7 +164,7 @@ for (const symbol of ["join_room", "request_delivery", "resolveOutcome", "match_
   if (!server.includes(symbol)) throw new Error(`authoritative-server missing ${symbol}`);
 }
 
-for (const symbol of ["MenuItem", "BuildScene", "CreateStadium", "CreatePlayer", "CreateHud", "RealtimeMatchClient", "NetworkGameplaySynchronizer", "RuntimeAssetBinder", "MobilePerformanceManager", "GameModeMenuController", "ArenaLobbySkin", "ArenaScreenDirector", "LobbyShowcaseController", "LobbyHeroPlayer", "LobbyCameraRig", "CreatePanel", "TopStatusBar", "ModePanel", "SquadPanel", "ActionBar", "PrimaryPlayButton", "QuickMatchButton", "CareerButton", "TournamentButton", "RoomCodeInput"]) {
+for (const symbol of ["MenuItem", "BuildScene", "CreateStadium", "CreateAtmosphere", "Arena Banner", "Crowd Color Band", "CreatePlayer", "CreateHud", "RealtimeMatchClient", "NetworkGameplaySynchronizer", "RuntimeAssetBinder", "MobilePerformanceManager", "GameModeMenuController", "ArenaLobbySkin", "ArenaScreenDirector", "LobbyShowcaseController", "LoadoutController", "BatLoadoutButton", "KitLoadoutButton", "BoostLoadoutButton", "LobbyHeroPlayer", "LobbyCameraRig", "CreatePanel", "TopStatusBar", "ModePanel", "SquadPanel", "ActionBar", "PrimaryPlayButton", "QuickMatchButton", "CareerButton", "TournamentButton", "RoomCodeInput"]) {
   if (!sceneBuilder.includes(symbol)) throw new Error(`ArenaSceneBuilder missing ${symbol}`);
 }
 

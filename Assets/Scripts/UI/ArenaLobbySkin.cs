@@ -1,3 +1,4 @@
+using CricketArena.Core;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,6 +15,14 @@ namespace CricketArena.UI
         [SerializeField] private Text squadText;
         [SerializeField] private Text loadoutText;
         [SerializeField] private Text primaryActionText;
+
+        private PlayerLoadout loadout = PlayerLoadout.Default;
+
+        public void SetLoadout(PlayerLoadout value)
+        {
+            loadout = value;
+            Apply();
+        }
 
         public void Apply()
         {
@@ -36,9 +45,9 @@ namespace CricketArena.UI
 
             Set(titleText, "CRICKET ARENA");
             Set(seasonText, "Season 01 | Night League");
-            Set(currencyText, "XP 0  |  Coins 0");
-            Set(squadText, "Harish XI\nPowerplay Squad\nRating 72");
-            Set(loadoutText, "Bat: Balanced\nKit: Blue Steel\nBoost: Timing");
+            Set(currencyText, $"XP {loadout.Xp}  |  Coins {loadout.Coins}");
+            Set(squadText, $"{loadout.SquadName}\n{loadout.SquadTag}\nRating {loadout.Rating}");
+            Set(loadoutText, $"Bat: {loadout.Bat}\nKit: {loadout.Kit}\nBoost: {loadout.Boost}");
             Set(primaryActionText, "PLAY");
         }
 
