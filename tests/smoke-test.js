@@ -7,6 +7,9 @@ const requiredFiles = [
   "Packages/manifest.json",
   "ProjectSettings/ProjectVersion.txt",
   "Assets/Scripts/Core/MatchManager.cs",
+  "Assets/Scripts/Core/GameModeConfig.cs",
+  "Assets/Scripts/Core/CareerProgressionManager.cs",
+  "Assets/Scripts/Core/TournamentManager.cs",
   "Assets/Scripts/Core/ShotOutcome.cs",
   "Assets/Scripts/Core/ReplayEvent.cs",
   "Assets/Scripts/Core/ReplayRecorder.cs",
@@ -26,6 +29,7 @@ const requiredFiles = [
   "Assets/Scripts/UI/ScoreHudController.cs",
   "Assets/Scripts/UI/MobileControlsController.cs",
   "Assets/Scripts/UI/MultiplayerLobbyController.cs",
+  "Assets/Scripts/UI/GameModeMenuController.cs",
   "Assets/Scripts/Editor/ArenaSceneBuilder.cs",
   "Assets/Scripts/Editor/AssetReadinessValidator.cs",
   "Assets/Scripts/Editor/MobileBuildConfigurator.cs",
@@ -35,6 +39,7 @@ const requiredFiles = [
   "docs/BUILD_AND_RELEASE.md",
   "docs/MULTIPLAYER_OPERATIONS.md",
   "docs/MOBILE_PERFORMANCE.md",
+  "docs/GAME_MODES.md",
   "scripts/run-checks.ps1",
   ".github/workflows/smoke.yml",
   "server/Dockerfile",
@@ -49,12 +54,16 @@ for (const file of requiredFiles) {
 }
 
 const matchManager = fs.readFileSync(path.join(root, "Assets/Scripts/Core/MatchManager.cs"), "utf8");
+const gameMode = fs.readFileSync(path.join(root, "Assets/Scripts/Core/GameModeConfig.cs"), "utf8");
+const career = fs.readFileSync(path.join(root, "Assets/Scripts/Core/CareerProgressionManager.cs"), "utf8");
+const tournament = fs.readFileSync(path.join(root, "Assets/Scripts/Core/TournamentManager.cs"), "utf8");
 const batting = fs.readFileSync(path.join(root, "Assets/Scripts/Gameplay/BattingController.cs"), "utf8");
 const ball = fs.readFileSync(path.join(root, "Assets/Scripts/Gameplay/BallPhysicsController.cs"), "utf8");
 const network = fs.readFileSync(path.join(root, "Assets/Scripts/Networking/RealtimeMatchClient.cs"), "utf8");
 const protocol = fs.readFileSync(path.join(root, "Assets/Scripts/Networking/MatchProtocol.cs"), "utf8");
 const networkSync = fs.readFileSync(path.join(root, "Assets/Scripts/Networking/NetworkGameplaySynchronizer.cs"), "utf8");
 const lobby = fs.readFileSync(path.join(root, "Assets/Scripts/UI/MultiplayerLobbyController.cs"), "utf8");
+const modeMenu = fs.readFileSync(path.join(root, "Assets/Scripts/UI/GameModeMenuController.cs"), "utf8");
 const server = fs.readFileSync(path.join(root, "server/authoritative-server.js"), "utf8");
 const sceneBuilder = fs.readFileSync(path.join(root, "Assets/Scripts/Editor/ArenaSceneBuilder.cs"), "utf8");
 const validator = fs.readFileSync(path.join(root, "Assets/Scripts/Editor/AssetReadinessValidator.cs"), "utf8");
@@ -67,8 +76,20 @@ const impact = fs.readFileSync(path.join(root, "Assets/Scripts/Presentation/Impa
 const animation = fs.readFileSync(path.join(root, "Assets/Scripts/Presentation/PlayerAnimationDirector.cs"), "utf8");
 const performance = fs.readFileSync(path.join(root, "Assets/Scripts/Presentation/MobilePerformanceManager.cs"), "utf8");
 
-for (const symbol of ["MatchPhase", "ApplyOutcome", "OnScoreChanged", "SyncAuthoritativeState"]) {
+for (const symbol of ["MatchPhase", "ApplyOutcome", "OnScoreChanged", "SyncAuthoritativeState", "Configure", "CricketGameMode"]) {
   if (!matchManager.includes(symbol)) throw new Error(`MatchManager missing ${symbol}`);
+}
+
+for (const symbol of ["CricketGameMode", "QuickMatch", "PracticeNets", "CareerChase", "TournamentChase", "OnlineRoom"]) {
+  if (!gameMode.includes(symbol)) throw new Error(`GameModeConfig missing ${symbol}`);
+}
+
+for (const symbol of ["CareerProgressionManager", "StartCareerMatch", "SkillPoints", "OnCareerChanged"]) {
+  if (!career.includes(symbol)) throw new Error(`CareerProgressionManager missing ${symbol}`);
+}
+
+for (const symbol of ["TournamentManager", "StartTournament", "StartRound", "OnTournamentChanged"]) {
+  if (!tournament.includes(symbol)) throw new Error(`TournamentManager missing ${symbol}`);
 }
 
 for (const symbol of ["ShotIntent", "PlayShot", "ResolveOutcome", "MobileHaptics"]) {
@@ -103,11 +124,15 @@ for (const symbol of ["MultiplayerLobbyController", "Ready", "RequestDelivery", 
   if (!lobby.includes(symbol)) throw new Error(`MultiplayerLobbyController missing ${symbol}`);
 }
 
+for (const symbol of ["GameModeMenuController", "StartQuickMatch", "StartPracticeNets", "StartCareer", "StartTournament", "StartOnlineRoom"]) {
+  if (!modeMenu.includes(symbol)) throw new Error(`GameModeMenuController missing ${symbol}`);
+}
+
 for (const symbol of ["join_room", "request_delivery", "resolveOutcome", "match_state", "sanitizeRoomCode", "MAX_ROOM_PLAYERS", "cleanupRooms", "RATE_LIMIT_MAX_MESSAGES", "/metrics", "decodeFrames"]) {
   if (!server.includes(symbol)) throw new Error(`authoritative-server missing ${symbol}`);
 }
 
-for (const symbol of ["MenuItem", "BuildScene", "CreateStadium", "CreatePlayer", "CreateHud", "RealtimeMatchClient", "NetworkGameplaySynchronizer", "RuntimeAssetBinder", "MobilePerformanceManager", "CreateButton", "RoomCodeInput"]) {
+for (const symbol of ["MenuItem", "BuildScene", "CreateStadium", "CreatePlayer", "CreateHud", "RealtimeMatchClient", "NetworkGameplaySynchronizer", "RuntimeAssetBinder", "MobilePerformanceManager", "GameModeMenuController", "QuickMatchButton", "CareerButton", "TournamentButton", "RoomCodeInput"]) {
   if (!sceneBuilder.includes(symbol)) throw new Error(`ArenaSceneBuilder missing ${symbol}`);
 }
 

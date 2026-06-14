@@ -24,10 +24,22 @@ namespace CricketArena.Core
         public UnityEvent<string> OnMessage;
 
         public MatchPhase Phase { get; private set; } = MatchPhase.Menu;
+        public CricketGameMode Mode { get; private set; } = CricketGameMode.QuickMatch;
         public int Runs { get; private set; }
         public int Wickets { get; private set; }
         public int Balls { get; private set; }
         public int TargetRuns => targetRuns;
+        public int MaxBalls => maxBalls;
+        public int MaxWickets => maxWickets;
+
+        public void Configure(GameModeConfig config)
+        {
+            Mode = config.Mode;
+            targetRuns = Mathf.Max(1, config.TargetRuns);
+            maxBalls = Mathf.Max(1, config.MaxBalls);
+            maxWickets = Mathf.Max(1, config.MaxWickets);
+            Publish(config.DisplayName);
+        }
 
         public void StartChase()
         {

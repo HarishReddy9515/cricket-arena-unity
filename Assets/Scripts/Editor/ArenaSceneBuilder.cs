@@ -32,6 +32,8 @@ namespace CricketArena.EditorTools
 
             GameObject game = new GameObject("Game");
             var match = game.AddComponent<MatchManager>();
+            var career = game.AddComponent<CareerProgressionManager>();
+            var tournament = game.AddComponent<TournamentManager>();
             var haptics = game.AddComponent<MobileHaptics>();
             var replayRecorder = game.AddComponent<ReplayRecorder>();
             var impactVfx = game.AddComponent<ImpactVfxController>();
@@ -95,7 +97,15 @@ namespace CricketArena.EditorTools
             mainCamera.gameObject.tag = "MainCamera";
             mainCamera.gameObject.AddComponent<AudioListener>();
 
-            GameObject ui = CreateHud(match, batting, bowling, networkClient);
+            GameObject ui = CreateHud(match, batting, bowling, networkClient, career, tournament);
+
+            SerializedObject careerObj = new SerializedObject(career);
+            SetObject(careerObj, "matchManager", match);
+            careerObj.ApplyModifiedPropertiesWithoutUndo();
+
+            SerializedObject tournamentObj = new SerializedObject(tournament);
+            SetObject(tournamentObj, "matchManager", match);
+            tournamentObj.ApplyModifiedPropertiesWithoutUndo();
 
             SerializedObject battingObj = new SerializedObject(batting);
             SetObject(battingObj, "matchManager", match);
@@ -259,7 +269,7 @@ namespace CricketArena.EditorTools
             return rig;
         }
 
-        private static GameObject CreateHud(MatchManager match, BattingController batting, BowlingController bowling, RealtimeMatchClient networkClient)
+        private static GameObject CreateHud(MatchManager match, BattingController batting, BowlingController bowling, RealtimeMatchClient networkClient, CareerProgressionManager career, TournamentManager tournament)
         {
             GameObject canvasObj = new GameObject("ScoreHUD");
             Canvas canvas = canvasObj.AddComponent<Canvas>();
@@ -270,6 +280,7 @@ namespace CricketArena.EditorTools
             GameObject scoreObj = CreateHudText("ScoreText", canvasObj.transform, "0/0", 34, new Vector2(0.04f, 0.88f), new Vector2(0.24f, 0.98f), TextAnchor.MiddleLeft);
             GameObject equationObj = CreateHudText("EquationText", canvasObj.transform, "24 from 6", 28, new Vector2(0.76f, 0.88f), new Vector2(0.96f, 0.98f), TextAnchor.MiddleRight);
             GameObject networkObj = CreateHudText("NetworkStatusText", canvasObj.transform, "Offline", 18, new Vector2(0.04f, 0.78f), new Vector2(0.38f, 0.84f), TextAnchor.MiddleLeft);
+            GameObject modeObj = CreateHudText("ModeText", canvasObj.transform, "Select Mode", 20, new Vector2(0.40f, 0.78f), new Vector2(0.70f, 0.84f), TextAnchor.MiddleCenter);
             GameObject textObj = new GameObject("MessageText");
             textObj.transform.SetParent(canvasObj.transform);
             Text text = textObj.AddComponent<Text>();
@@ -293,6 +304,20 @@ namespace CricketArena.EditorTools
             SetObject(controlsObj, "battingController", batting);
             SetObject(controlsObj, "bowlingController", bowling);
             controlsObj.ApplyModifiedPropertiesWithoutUndo();
+
+            CreateButton(canvasObj.transform, "QuickMatchButton", "Quick", new Vector2(0.04f, 0.04f), new Vector2(0.15f, 0.11f), nameof(GameModeMenuController.StartQuickMatch));
+            CreateButton(canvasObj.transform, "PracticeNetsButton", "Nets", new Vector2(0.16f, 0.04f), new Vector2(0.27f, 0.11f), nameof(GameModeMenuController.StartPracticeNets));
+            CreateButton(canvasObj.transform, "CareerButton", "Career", new Vector2(0.28f, 0.04f), new Vector2(0.40f, 0.11f), nameof(GameModeMenuController.StartCareer));
+            CreateButton(canvasObj.transform, "TournamentButton", "Cup", new Vector2(0.41f, 0.04f), new Vector2(0.52f, 0.11f), nameof(GameModeMenuController.StartTournament));
+            CreateButton(canvasObj.transform, "OnlineModeButton", "Online", new Vector2(0.53f, 0.04f), new Vector2(0.65f, 0.11f), nameof(GameModeMenuController.StartOnlineRoom));
+
+            var modes = canvasObj.AddComponent<GameModeMenuController>();
+            SerializedObject modesObj = new SerializedObject(modes);
+            SetObject(modesObj, "matchManager", match);
+            SetObject(modesObj, "career", career);
+            SetObject(modesObj, "tournament", tournament);
+            SetObject(modesObj, "modeText", modeObj.GetComponent<Text>());
+            modesObj.ApplyModifiedPropertiesWithoutUndo();
 
             InputField roomInput = CreateInput(canvasObj.transform, "ARENA-24", new Vector2(0.04f, 0.68f), new Vector2(0.28f, 0.75f));
             CreateButton(canvasObj.transform, "ConnectButton", "Connect", new Vector2(0.04f, 0.59f), new Vector2(0.18f, 0.66f), nameof(MultiplayerLobbyController.Connect));
@@ -319,6 +344,11 @@ namespace CricketArena.EditorTools
                 if (method == "Ready") button.onClick.AddListener(lobby.Ready);
                 if (method == "Delivery") button.onClick.AddListener(lobby.RequestDelivery);
                 if (method == "Shot") button.onClick.AddListener(lobby.SendShot);
+                if (method == "QuickMatch") button.onClick.AddListener(modes.StartQuickMatch);
+                if (method == "PracticeNets") button.onClick.AddListener(modes.StartPracticeNets);
+                if (method == "Career") button.onClick.AddListener(modes.StartCareer);
+                if (method == "Tournament") button.onClick.AddListener(modes.StartTournament);
+                if (method == "OnlineMode") button.onClick.AddListener(modes.StartOnlineRoom);
             }
 
             return canvasObj;

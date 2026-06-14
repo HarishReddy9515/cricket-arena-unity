@@ -12,6 +12,7 @@ This is **not** a clone of Real Cricket, WCC, EA Sports FC, or PUBG. It is an or
 - bowling delivery controller
 - ball physics controller
 - match state manager
+- original game modes: quick match, practice nets, career, tournament, online room
 - cinematic camera director
 - mobile haptics bridge
 - WebSocket-style multiplayer client scaffold
@@ -146,6 +147,10 @@ See [docs/ASSET_PIPELINE.md](docs/ASSET_PIPELINE.md). The project uses `CricketA
 
 See [docs/ANIMATION_PIPELINE.md](docs/ANIMATION_PIPELINE.md). `PlayerAnimationDirector` maps gameplay events to animator triggers and parameters for bowling, batting, wickets, celebrations, shot power, delivery speed, and match phase.
 
+## Game Modes
+
+See [docs/GAME_MODES.md](docs/GAME_MODES.md). The generated prototype includes buttons for Quick Match, Practice Nets, Career Chase, Tournament Chase, and Online Room. These are original systems built around configurable match rules and progression.
+
 ## Unity Multiplayer Flow
 
 The generated prototype scene now includes a `RealtimeMatchClient` and `MultiplayerLobbyController`.
@@ -182,6 +187,7 @@ Then open the generated Unity scene, press **Connect**, enter or keep `ARENA-24`
 - mobile haptics
 - cinematic replay camera
 - online friend rooms
+- quick match, practice nets, career, tournament, and online room modes
 - authoritative server validation
 - optimized mobile rendering
 - replay highlights
