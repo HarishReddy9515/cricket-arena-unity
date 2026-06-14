@@ -18,6 +18,7 @@ namespace CricketArena.Gameplay
         [SerializeField] private BallPhysicsController ballPhysics;
         [SerializeField] private Animator batterAnimator;
         [SerializeField] private PlayerAnimationDirector animationDirector;
+        [SerializeField] private BattingAssistController battingAssist;
         [SerializeField] private MobileHaptics haptics;
         [SerializeField] private CricketArena.Presentation.ImpactVfxController impactVfx;
         [SerializeField] private CricketArena.Core.ReplayRecorder replayRecorder;
@@ -52,6 +53,7 @@ namespace CricketArena.Gameplay
             float contactQuality = Mathf.Clamp01(1f - distance / perfectContactDistance);
             float timingQuality = ballPhysics.NormalizedTimingWindow;
             float quality = Mathf.Clamp01(contactQuality * 0.62f + timingQuality * 0.38f);
+            quality = battingAssist != null ? battingAssist.ApplyAssist(quality, intent) : quality;
 
             ShotOutcome outcome = ResolveOutcome(quality);
             animationDirector?.PlayShot(intent, outcome);
@@ -67,6 +69,7 @@ namespace CricketArena.Gameplay
             {
                 replayRecorder?.PlayLastHighlight();
             }
+            battingAssist?.ReportOutcome(outcome, quality);
             matchManager.ApplyOutcome(outcome);
             intent = ShotIntent.Straight;
         }

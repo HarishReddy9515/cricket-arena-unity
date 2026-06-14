@@ -18,6 +18,7 @@ const requiredFiles = [
   "Assets/Scripts/Core/ReplayEvent.cs",
   "Assets/Scripts/Core/ReplayRecorder.cs",
   "Assets/Scripts/Gameplay/BattingController.cs",
+  "Assets/Scripts/Gameplay/BattingAssistController.cs",
   "Assets/Scripts/Gameplay/AIBowlingStrategy.cs",
   "Assets/Scripts/Gameplay/BowlingController.cs",
   "Assets/Scripts/Gameplay/BallPhysicsController.cs",
@@ -74,6 +75,7 @@ const season = fs.readFileSync(path.join(root, "Assets/Scripts/Core/SeasonProgre
 const career = fs.readFileSync(path.join(root, "Assets/Scripts/Core/CareerProgressionManager.cs"), "utf8");
 const tournament = fs.readFileSync(path.join(root, "Assets/Scripts/Core/TournamentManager.cs"), "utf8");
 const batting = fs.readFileSync(path.join(root, "Assets/Scripts/Gameplay/BattingController.cs"), "utf8");
+const battingAssist = fs.readFileSync(path.join(root, "Assets/Scripts/Gameplay/BattingAssistController.cs"), "utf8");
 const aiBowling = fs.readFileSync(path.join(root, "Assets/Scripts/Gameplay/AIBowlingStrategy.cs"), "utf8");
 const ball = fs.readFileSync(path.join(root, "Assets/Scripts/Gameplay/BallPhysicsController.cs"), "utf8");
 const network = fs.readFileSync(path.join(root, "Assets/Scripts/Networking/RealtimeMatchClient.cs"), "utf8");
@@ -119,7 +121,7 @@ for (const symbol of ["InventoryManager", "NextUnlocked", "Unlock", "OnInventory
   if (!inventory.includes(symbol)) throw new Error(`InventoryManager missing ${symbol}`);
 }
 
-for (const symbol of ["SeasonProgression", "SeasonMission", "AddRuns", "AddBoundary", "AddWin", "OnSeasonChanged"]) {
+for (const symbol of ["SeasonProgression", "SeasonMission", "AddRuns", "AddBoundary", "AddWin", "OnSeasonChanged", "OnScoreChanged"]) {
   if (!season.includes(symbol)) throw new Error(`SeasonProgression missing ${symbol}`);
 }
 
@@ -133,6 +135,14 @@ for (const symbol of ["TournamentManager", "StartTournament", "StartRound", "OnT
 
 for (const symbol of ["ShotIntent", "PlayShot", "ResolveOutcome", "MobileHaptics"]) {
   if (!batting.includes(symbol)) throw new Error(`BattingController missing ${symbol}`);
+}
+
+for (const symbol of ["BattingAssistController", "ApplyAssist", "ReportOutcome", "OnTimingFeedback", "SeasonProgression"]) {
+  if (!battingAssist.includes(symbol)) throw new Error(`BattingAssistController missing ${symbol}`);
+}
+
+if (!batting.includes("battingAssist")) {
+  throw new Error("BattingController missing battingAssist");
 }
 
 if (!batting.includes("PlayerAnimationDirector")) {
@@ -199,7 +209,7 @@ for (const symbol of ["join_room", "request_delivery", "resolveOutcome", "match_
   if (!server.includes(symbol)) throw new Error(`authoritative-server missing ${symbol}`);
 }
 
-for (const symbol of ["MenuItem", "BuildScene", "CreateStadium", "CreateAtmosphere", "Arena Banner", "Crowd Color Band", "CreatePlayer", "CreateHud", "AIBowlingStrategy", "RealtimeMatchClient", "NetworkGameplaySynchronizer", "RuntimeAssetBinder", "MobilePerformanceManager", "GameModeMenuController", "ArenaLobbySkin", "ArenaScreenDirector", "LobbyShowcaseController", "LoadoutController", "GraphicsSettingsController", "SeasonProgression", "InventoryManager", "BatLoadoutButton", "KitLoadoutButton", "BoostLoadoutButton", "BatteryGraphicsButton", "BalancedGraphicsButton", "PerformanceGraphicsButton", "LobbyHeroPlayer", "LobbyCameraRig", "CreatePanel", "TopStatusBar", "ModePanel", "SquadPanel", "ActionBar", "PrimaryPlayButton", "QuickMatchButton", "CareerButton", "TournamentButton", "RoomCodeInput"]) {
+for (const symbol of ["MenuItem", "BuildScene", "CreateStadium", "CreateAtmosphere", "Arena Banner", "Crowd Color Band", "CreatePlayer", "CreateHud", "AIBowlingStrategy", "BattingAssistController", "TimingFeedbackText", "RealtimeMatchClient", "NetworkGameplaySynchronizer", "RuntimeAssetBinder", "MobilePerformanceManager", "GameModeMenuController", "ArenaLobbySkin", "ArenaScreenDirector", "LobbyShowcaseController", "LoadoutController", "GraphicsSettingsController", "SeasonProgression", "InventoryManager", "BatLoadoutButton", "KitLoadoutButton", "BoostLoadoutButton", "BatteryGraphicsButton", "BalancedGraphicsButton", "PerformanceGraphicsButton", "LobbyHeroPlayer", "LobbyCameraRig", "CreatePanel", "TopStatusBar", "ModePanel", "SquadPanel", "ActionBar", "PrimaryPlayButton", "QuickMatchButton", "CareerButton", "TournamentButton", "RoomCodeInput"]) {
   if (!sceneBuilder.includes(symbol)) throw new Error(`ArenaSceneBuilder missing ${symbol}`);
 }
 

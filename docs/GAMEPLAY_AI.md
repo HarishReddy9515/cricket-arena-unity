@@ -20,3 +20,13 @@ The strategy computes pressure from required run rate and wickets lost, then cho
 - Quick Match uses balanced bowling.
 - Career and Tournament get harder as level or round increases.
 - Online Room still uses the authoritative server delivery selection.
+
+## Batting Assist
+
+`BattingAssistController` adds a light timing assist for attacking shots, reports shot timing feedback, and feeds season missions:
+
+- runs add progress to score missions
+- boundaries add progress to boundary missions
+- wins add progress to chase missions through `SeasonProgression`
+
+Feedback values are `Perfect`, `Great`, `Good`, `Early`, and `Late`.

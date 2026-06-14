@@ -41,6 +41,7 @@ namespace CricketArena.EditorTools
             var replayRecorder = game.AddComponent<ReplayRecorder>();
             var impactVfx = game.AddComponent<ImpactVfxController>();
             var batting = game.AddComponent<BattingController>();
+            var battingAssist = game.AddComponent<BattingAssistController>();
             var bowling = game.AddComponent<BowlingController>();
             var aiBowling = game.AddComponent<AIBowlingStrategy>();
             var cameraDirector = game.AddComponent<CameraDirector>();
@@ -110,7 +111,7 @@ namespace CricketArena.EditorTools
             mainCamera.gameObject.tag = "MainCamera";
             mainCamera.gameObject.AddComponent<AudioListener>();
 
-            GameObject ui = CreateHud(match, batting, bowling, networkClient, career, tournament, cameraDirector, inventory, performance);
+            GameObject ui = CreateHud(match, batting, bowling, networkClient, career, tournament, cameraDirector, inventory, performance, battingAssist);
 
             SerializedObject careerObj = new SerializedObject(career);
             SetObject(careerObj, "matchManager", match);
@@ -120,16 +121,25 @@ namespace CricketArena.EditorTools
             SetObject(tournamentObj, "matchManager", match);
             tournamentObj.ApplyModifiedPropertiesWithoutUndo();
 
+            SerializedObject seasonObj = new SerializedObject(season);
+            SetObject(seasonObj, "matchManager", match);
+            seasonObj.ApplyModifiedPropertiesWithoutUndo();
+
             SerializedObject battingObj = new SerializedObject(batting);
             SetObject(battingObj, "matchManager", match);
             SetObject(battingObj, "ballPhysics", ballPhysics);
             SetObject(battingObj, "batterAnimator", batterAnimator);
             SetObject(battingObj, "animationDirector", animationDirector);
+            SetObject(battingObj, "battingAssist", battingAssist);
             SetObject(battingObj, "contactPoint", contact.transform);
             SetObject(battingObj, "haptics", haptics);
             SetObject(battingObj, "impactVfx", impactVfx);
             SetObject(battingObj, "replayRecorder", replayRecorder);
             battingObj.ApplyModifiedPropertiesWithoutUndo();
+
+            SerializedObject battingAssistObj = new SerializedObject(battingAssist);
+            SetObject(battingAssistObj, "seasonProgression", season);
+            battingAssistObj.ApplyModifiedPropertiesWithoutUndo();
 
             SerializedObject bowlingObj = new SerializedObject(bowling);
             SetObject(bowlingObj, "matchManager", match);
@@ -325,7 +335,7 @@ namespace CricketArena.EditorTools
             return rig;
         }
 
-        private static GameObject CreateHud(MatchManager match, BattingController batting, BowlingController bowling, RealtimeMatchClient networkClient, CareerProgressionManager career, TournamentManager tournament, CameraDirector cameraDirector, InventoryManager inventory, MobilePerformanceManager performance)
+        private static GameObject CreateHud(MatchManager match, BattingController batting, BowlingController bowling, RealtimeMatchClient networkClient, CareerProgressionManager career, TournamentManager tournament, CameraDirector cameraDirector, InventoryManager inventory, MobilePerformanceManager performance, BattingAssistController battingAssist)
         {
             GameObject canvasObj = new GameObject("ScoreHUD");
             Canvas canvas = canvasObj.AddComponent<Canvas>();
@@ -352,6 +362,7 @@ namespace CricketArena.EditorTools
             GameObject loadoutObj = CreateHudText("LoadoutText", rightPanel.transform, "Bat: Balanced", 16, new Vector2(0.08f, 0.36f), new Vector2(0.92f, 0.58f), TextAnchor.UpperLeft);
             GameObject currencyObj = CreateHudText("CurrencyText", rightPanel.transform, "XP 0 | Coins 0", 16, new Vector2(0.08f, 0.88f), new Vector2(0.92f, 0.97f), TextAnchor.MiddleRight);
             GameObject primaryActionObj = CreateHudText("PrimaryActionText", bottomBar.transform, "PLAY", 24, new Vector2(0.77f, 0.12f), new Vector2(0.94f, 0.88f), TextAnchor.MiddleCenter);
+            GameObject timingObj = CreateHudText("TimingFeedbackText", bottomBar.transform, "Timing", 22, new Vector2(0.53f, 0.16f), new Vector2(0.74f, 0.84f), TextAnchor.MiddleCenter);
             GameObject textObj = new GameObject("MessageText");
             textObj.transform.SetParent(topBar.transform);
             Text text = textObj.AddComponent<Text>();
@@ -369,6 +380,7 @@ namespace CricketArena.EditorTools
             var hud = canvasObj.AddComponent<ScoreHudController>();
             hud.Bind(match);
             hud.BindText(scoreObj.GetComponent<Text>(), equationObj.GetComponent<Text>(), text);
+            battingAssist.OnTimingFeedback.AddListener(value => timingObj.GetComponent<Text>().text = value);
 
             var controls = canvasObj.AddComponent<MobileControlsController>();
             SerializedObject controlsObj = new SerializedObject(controls);

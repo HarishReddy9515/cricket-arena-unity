@@ -19,6 +19,7 @@ namespace CricketArena.Core
 
     public sealed class SeasonProgression : MonoBehaviour
     {
+        [SerializeField] private MatchManager matchManager;
         [SerializeField] private string seasonName = "Night League";
         [SerializeField] private int tier = 1;
         [SerializeField] private int seasonXp;
@@ -35,6 +36,22 @@ namespace CricketArena.Core
         public int Tier => tier;
         public int SeasonXp => seasonXp;
         public SeasonMission[] Missions => missions;
+
+        private void Awake()
+        {
+            if (matchManager != null)
+            {
+                matchManager.OnScoreChanged.AddListener(OnScoreChanged);
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (matchManager != null)
+            {
+                matchManager.OnScoreChanged.RemoveListener(OnScoreChanged);
+            }
+        }
 
         public void AddRuns(int runs)
         {
@@ -65,6 +82,15 @@ namespace CricketArena.Core
                 }
                 Publish();
                 return;
+            }
+        }
+
+        private void OnScoreChanged(int runs, int wickets, int balls, int target)
+        {
+            if (matchManager == null || matchManager.Phase != MatchPhase.InningsComplete) return;
+            if (runs >= target)
+            {
+                AddWin();
             }
         }
 
