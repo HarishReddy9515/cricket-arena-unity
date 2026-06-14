@@ -35,6 +35,8 @@ namespace CricketArena.EditorTools
             var match = game.AddComponent<MatchManager>();
             var career = game.AddComponent<CareerProgressionManager>();
             var tournament = game.AddComponent<TournamentManager>();
+            var season = game.AddComponent<SeasonProgression>();
+            var inventory = game.AddComponent<InventoryManager>();
             var haptics = game.AddComponent<MobileHaptics>();
             var replayRecorder = game.AddComponent<ReplayRecorder>();
             var impactVfx = game.AddComponent<ImpactVfxController>();
@@ -44,7 +46,7 @@ namespace CricketArena.EditorTools
             var assetBinder = game.AddComponent<RuntimeAssetBinder>();
             var animationDirector = game.AddComponent<PlayerAnimationDirector>();
             var showcase = game.AddComponent<LobbyShowcaseController>();
-            game.AddComponent<MobilePerformanceManager>();
+            var performance = game.AddComponent<MobilePerformanceManager>();
             var networkClient = game.AddComponent<RealtimeMatchClient>();
             var networkSync = game.AddComponent<NetworkGameplaySynchronizer>();
 
@@ -107,7 +109,7 @@ namespace CricketArena.EditorTools
             mainCamera.gameObject.tag = "MainCamera";
             mainCamera.gameObject.AddComponent<AudioListener>();
 
-            GameObject ui = CreateHud(match, batting, bowling, networkClient, career, tournament, cameraDirector);
+            GameObject ui = CreateHud(match, batting, bowling, networkClient, career, tournament, cameraDirector, inventory, performance);
 
             SerializedObject careerObj = new SerializedObject(career);
             SetObject(careerObj, "matchManager", match);
@@ -317,7 +319,7 @@ namespace CricketArena.EditorTools
             return rig;
         }
 
-        private static GameObject CreateHud(MatchManager match, BattingController batting, BowlingController bowling, RealtimeMatchClient networkClient, CareerProgressionManager career, TournamentManager tournament, CameraDirector cameraDirector)
+        private static GameObject CreateHud(MatchManager match, BattingController batting, BowlingController bowling, RealtimeMatchClient networkClient, CareerProgressionManager career, TournamentManager tournament, CameraDirector cameraDirector, InventoryManager inventory, MobilePerformanceManager performance)
         {
             GameObject canvasObj = new GameObject("ScoreHUD");
             Canvas canvas = canvasObj.AddComponent<Canvas>();
@@ -415,10 +417,20 @@ namespace CricketArena.EditorTools
             CreateButton(rightPanel.transform, "BatLoadoutButton", "Bat", new Vector2(0.08f, 0.49f), new Vector2(0.31f, 0.57f), nameof(LoadoutController.NextBat));
             CreateButton(rightPanel.transform, "KitLoadoutButton", "Kit", new Vector2(0.38f, 0.49f), new Vector2(0.61f, 0.57f), nameof(LoadoutController.NextKit));
             CreateButton(rightPanel.transform, "BoostLoadoutButton", "Boost", new Vector2(0.68f, 0.49f), new Vector2(0.92f, 0.57f), nameof(LoadoutController.NextBoost));
+            CreateButton(rightPanel.transform, "BatteryGraphicsButton", "30", new Vector2(0.08f, 0.01f), new Vector2(0.28f, 0.08f), nameof(GraphicsSettingsController.SetBattery));
+            CreateButton(rightPanel.transform, "BalancedGraphicsButton", "60", new Vector2(0.40f, 0.01f), new Vector2(0.60f, 0.08f), nameof(GraphicsSettingsController.SetBalanced));
+            CreateButton(rightPanel.transform, "PerformanceGraphicsButton", "Max", new Vector2(0.72f, 0.01f), new Vector2(0.92f, 0.08f), nameof(GraphicsSettingsController.SetPerformance));
 
             SerializedObject loadoutObj = new SerializedObject(loadout);
             SetObject(loadoutObj, "lobbySkin", skin);
+            SetObject(loadoutObj, "inventory", inventory);
             loadoutObj.ApplyModifiedPropertiesWithoutUndo();
+
+            var graphics = canvasObj.AddComponent<GraphicsSettingsController>();
+            SerializedObject graphicsObj = new SerializedObject(graphics);
+            SetObject(graphicsObj, "performanceManager", performance);
+            SetObject(graphicsObj, "statusText", networkObj.GetComponent<Text>());
+            graphicsObj.ApplyModifiedPropertiesWithoutUndo();
 
             SerializedObject screenObj = new SerializedObject(screenDirector);
             SetObject(screenObj, "cameraDirector", cameraDirector);
@@ -445,6 +457,9 @@ namespace CricketArena.EditorTools
                 if (method == "BatLoadout") button.onClick.AddListener(loadout.NextBat);
                 if (method == "KitLoadout") button.onClick.AddListener(loadout.NextKit);
                 if (method == "BoostLoadout") button.onClick.AddListener(loadout.NextBoost);
+                if (method == "BatteryGraphics") button.onClick.AddListener(graphics.SetBattery);
+                if (method == "BalancedGraphics") button.onClick.AddListener(graphics.SetBalanced);
+                if (method == "PerformanceGraphics") button.onClick.AddListener(graphics.SetPerformance);
                 if (method == "QuickMatch") button.onClick.AddListener(modes.StartQuickMatch);
                 if (method == "PracticeNets") button.onClick.AddListener(modes.StartPracticeNets);
                 if (method == "Career") button.onClick.AddListener(modes.StartCareer);

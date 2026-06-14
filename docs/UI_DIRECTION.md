@@ -11,6 +11,7 @@ The generated prototype scene uses:
 - right squad panel for team identity, room code, connection, and loadout
 - bottom action bar for ready, delivery, shot, and primary play action
 - loadout controls for bat, kit, and boost selection
+- graphics preset controls for battery, balanced, and performance
 - a separate 3D lobby camera focused on the showcase player
 - a rotating player pedestal for the pre-match lobby
 - screen-state switching from lobby chrome into gameplay HUD
@@ -28,6 +29,7 @@ The generated prototype scene uses:
 
 - `ArenaLobbySkin` applies the lobby color treatment and default lobby text.
 - `LoadoutController` updates bat, kit, boost, XP, and coin display.
+- `GraphicsSettingsController` lets the lobby switch mobile performance presets.
 - `ArenaScreenDirector` switches lobby panels, gameplay panels, and camera view.
 - `LobbyShowcaseController` rotates and floats the lobby showcase player.
 - `ArenaSceneBuilder` creates the full lobby hierarchy during prototype scene generation.
@@ -36,3 +38,11 @@ The generated prototype scene uses:
 ## Stadium Atmosphere
 
 The scene builder adds procedural banner strips and crowd color bands around the stadium so the generated scene has more visual density before licensed 3D crowd and signage assets are imported.
+
+## Live Game Systems
+
+The lobby is backed by original live-game style systems:
+
+- `InventoryManager` tracks unlocked bats, kits, boosts, and banners.
+- `SeasonProgression` tracks season missions, tier, and XP.
+- `PlayerLoadout` stores squad identity, equipment, rating, XP, and coins.

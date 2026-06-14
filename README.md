@@ -16,6 +16,7 @@ This is **not** a clone of Real Cricket, WCC, EA Sports FC, or PUBG. It is an or
 - premium mobile lobby UI scaffold
 - 3D lobby camera and showcase player staging
 - loadout customization for bat, kit, and boost
+- inventory, season missions, and graphics preset controls
 - procedural stadium banners and crowd color bands
 - cinematic camera director
 - mobile haptics bridge
@@ -199,6 +200,7 @@ Then open the generated Unity scene, press **Connect**, enter or keep `ARENA-24`
 - premium mobile sports lobby UI
 - 3D lobby camera and showcase player staging
 - loadout customization and stadium atmosphere dressing
+- inventory, season missions, and graphics preset controls
 - authoritative server validation
 - optimized mobile rendering
 - replay highlights

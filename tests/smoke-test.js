@@ -9,6 +9,9 @@ const requiredFiles = [
   "Assets/Scripts/Core/MatchManager.cs",
   "Assets/Scripts/Core/GameModeConfig.cs",
   "Assets/Scripts/Core/PlayerLoadout.cs",
+  "Assets/Scripts/Core/InventoryItem.cs",
+  "Assets/Scripts/Core/InventoryManager.cs",
+  "Assets/Scripts/Core/SeasonProgression.cs",
   "Assets/Scripts/Core/CareerProgressionManager.cs",
   "Assets/Scripts/Core/TournamentManager.cs",
   "Assets/Scripts/Core/ShotOutcome.cs",
@@ -35,6 +38,7 @@ const requiredFiles = [
   "Assets/Scripts/UI/ArenaLobbySkin.cs",
   "Assets/Scripts/UI/ArenaScreenDirector.cs",
   "Assets/Scripts/UI/LoadoutController.cs",
+  "Assets/Scripts/UI/GraphicsSettingsController.cs",
   "Assets/Scripts/Editor/ArenaSceneBuilder.cs",
   "Assets/Scripts/Editor/AssetReadinessValidator.cs",
   "Assets/Scripts/Editor/MobileBuildConfigurator.cs",
@@ -62,6 +66,9 @@ for (const file of requiredFiles) {
 const matchManager = fs.readFileSync(path.join(root, "Assets/Scripts/Core/MatchManager.cs"), "utf8");
 const gameMode = fs.readFileSync(path.join(root, "Assets/Scripts/Core/GameModeConfig.cs"), "utf8");
 const playerLoadout = fs.readFileSync(path.join(root, "Assets/Scripts/Core/PlayerLoadout.cs"), "utf8");
+const inventoryItem = fs.readFileSync(path.join(root, "Assets/Scripts/Core/InventoryItem.cs"), "utf8");
+const inventory = fs.readFileSync(path.join(root, "Assets/Scripts/Core/InventoryManager.cs"), "utf8");
+const season = fs.readFileSync(path.join(root, "Assets/Scripts/Core/SeasonProgression.cs"), "utf8");
 const career = fs.readFileSync(path.join(root, "Assets/Scripts/Core/CareerProgressionManager.cs"), "utf8");
 const tournament = fs.readFileSync(path.join(root, "Assets/Scripts/Core/TournamentManager.cs"), "utf8");
 const batting = fs.readFileSync(path.join(root, "Assets/Scripts/Gameplay/BattingController.cs"), "utf8");
@@ -73,6 +80,7 @@ const lobby = fs.readFileSync(path.join(root, "Assets/Scripts/UI/MultiplayerLobb
 const modeMenu = fs.readFileSync(path.join(root, "Assets/Scripts/UI/GameModeMenuController.cs"), "utf8");
 const lobbySkin = fs.readFileSync(path.join(root, "Assets/Scripts/UI/ArenaLobbySkin.cs"), "utf8");
 const loadout = fs.readFileSync(path.join(root, "Assets/Scripts/UI/LoadoutController.cs"), "utf8");
+const graphics = fs.readFileSync(path.join(root, "Assets/Scripts/UI/GraphicsSettingsController.cs"), "utf8");
 const server = fs.readFileSync(path.join(root, "server/authoritative-server.js"), "utf8");
 const sceneBuilder = fs.readFileSync(path.join(root, "Assets/Scripts/Editor/ArenaSceneBuilder.cs"), "utf8");
 const validator = fs.readFileSync(path.join(root, "Assets/Scripts/Editor/AssetReadinessValidator.cs"), "utf8");
@@ -98,6 +106,18 @@ for (const symbol of ["CricketGameMode", "QuickMatch", "PracticeNets", "CareerCh
 
 for (const symbol of ["PlayerLoadout", "SquadName", "Bat", "Kit", "Boost", "Rating"]) {
   if (!playerLoadout.includes(symbol)) throw new Error(`PlayerLoadout missing ${symbol}`);
+}
+
+for (const symbol of ["InventoryItem", "InventoryItemType", "Bat", "Kit", "Boost", "Unlocked"]) {
+  if (!inventoryItem.includes(symbol)) throw new Error(`InventoryItem missing ${symbol}`);
+}
+
+for (const symbol of ["InventoryManager", "NextUnlocked", "Unlock", "OnInventoryChanged"]) {
+  if (!inventory.includes(symbol)) throw new Error(`InventoryManager missing ${symbol}`);
+}
+
+for (const symbol of ["SeasonProgression", "SeasonMission", "AddRuns", "AddBoundary", "AddWin", "OnSeasonChanged"]) {
+  if (!season.includes(symbol)) throw new Error(`SeasonProgression missing ${symbol}`);
 }
 
 for (const symbol of ["CareerProgressionManager", "StartCareerMatch", "SkillPoints", "OnCareerChanged"]) {
@@ -152,8 +172,12 @@ for (const symbol of ["ArenaLobbySkin", "PlayerLoadout", "SetLoadout", "panelCol
   if (!lobbySkin.includes(symbol)) throw new Error(`ArenaLobbySkin missing ${symbol}`);
 }
 
-for (const symbol of ["LoadoutController", "NextBat", "NextKit", "NextBoost", "AddReward"]) {
+for (const symbol of ["LoadoutController", "InventoryManager", "NextBat", "NextKit", "NextBoost", "AddReward"]) {
   if (!loadout.includes(symbol)) throw new Error(`LoadoutController missing ${symbol}`);
+}
+
+for (const symbol of ["GraphicsSettingsController", "SetBattery", "SetBalanced", "SetPerformance", "MobilePerformanceManager"]) {
+  if (!graphics.includes(symbol)) throw new Error(`GraphicsSettingsController missing ${symbol}`);
 }
 
 for (const symbol of ["ArenaScreenDirector", "ShowLobby", "ShowGameplay", "CanvasGroup"]) {
@@ -164,7 +188,7 @@ for (const symbol of ["join_room", "request_delivery", "resolveOutcome", "match_
   if (!server.includes(symbol)) throw new Error(`authoritative-server missing ${symbol}`);
 }
 
-for (const symbol of ["MenuItem", "BuildScene", "CreateStadium", "CreateAtmosphere", "Arena Banner", "Crowd Color Band", "CreatePlayer", "CreateHud", "RealtimeMatchClient", "NetworkGameplaySynchronizer", "RuntimeAssetBinder", "MobilePerformanceManager", "GameModeMenuController", "ArenaLobbySkin", "ArenaScreenDirector", "LobbyShowcaseController", "LoadoutController", "BatLoadoutButton", "KitLoadoutButton", "BoostLoadoutButton", "LobbyHeroPlayer", "LobbyCameraRig", "CreatePanel", "TopStatusBar", "ModePanel", "SquadPanel", "ActionBar", "PrimaryPlayButton", "QuickMatchButton", "CareerButton", "TournamentButton", "RoomCodeInput"]) {
+for (const symbol of ["MenuItem", "BuildScene", "CreateStadium", "CreateAtmosphere", "Arena Banner", "Crowd Color Band", "CreatePlayer", "CreateHud", "RealtimeMatchClient", "NetworkGameplaySynchronizer", "RuntimeAssetBinder", "MobilePerformanceManager", "GameModeMenuController", "ArenaLobbySkin", "ArenaScreenDirector", "LobbyShowcaseController", "LoadoutController", "GraphicsSettingsController", "SeasonProgression", "InventoryManager", "BatLoadoutButton", "KitLoadoutButton", "BoostLoadoutButton", "BatteryGraphicsButton", "BalancedGraphicsButton", "PerformanceGraphicsButton", "LobbyHeroPlayer", "LobbyCameraRig", "CreatePanel", "TopStatusBar", "ModePanel", "SquadPanel", "ActionBar", "PrimaryPlayButton", "QuickMatchButton", "CareerButton", "TournamentButton", "RoomCodeInput"]) {
   if (!sceneBuilder.includes(symbol)) throw new Error(`ArenaSceneBuilder missing ${symbol}`);
 }
 

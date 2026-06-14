@@ -6,14 +6,9 @@ namespace CricketArena.UI
     public sealed class LoadoutController : MonoBehaviour
     {
         [SerializeField] private ArenaLobbySkin lobbySkin;
+        [SerializeField] private InventoryManager inventory;
 
-        private readonly string[] bats = { "Balanced", "Power", "Control" };
-        private readonly string[] kits = { "Blue Steel", "Night Gold", "Arena White" };
-        private readonly string[] boosts = { "Timing", "Powerplay", "Placement" };
         private PlayerLoadout loadout = PlayerLoadout.Default;
-        private int batIndex;
-        private int kitIndex;
-        private int boostIndex;
 
         private void Awake()
         {
@@ -22,22 +17,34 @@ namespace CricketArena.UI
 
         public void NextBat()
         {
-            batIndex = (batIndex + 1) % bats.Length;
-            loadout.Bat = bats[batIndex];
+            InventoryItem item = inventory != null ? inventory.NextUnlocked(InventoryItemType.Bat, loadout.Bat) : default;
+            if (!string.IsNullOrWhiteSpace(item.DisplayName))
+            {
+                loadout.Bat = item.DisplayName;
+                loadout.Rating = PlayerLoadout.Default.Rating + item.RatingBonus;
+            }
             Publish();
         }
 
         public void NextKit()
         {
-            kitIndex = (kitIndex + 1) % kits.Length;
-            loadout.Kit = kits[kitIndex];
+            InventoryItem item = inventory != null ? inventory.NextUnlocked(InventoryItemType.Kit, loadout.Kit) : default;
+            if (!string.IsNullOrWhiteSpace(item.DisplayName))
+            {
+                loadout.Kit = item.DisplayName;
+                loadout.Rating = PlayerLoadout.Default.Rating + item.RatingBonus;
+            }
             Publish();
         }
 
         public void NextBoost()
         {
-            boostIndex = (boostIndex + 1) % boosts.Length;
-            loadout.Boost = boosts[boostIndex];
+            InventoryItem item = inventory != null ? inventory.NextUnlocked(InventoryItemType.Boost, loadout.Boost) : default;
+            if (!string.IsNullOrWhiteSpace(item.DisplayName))
+            {
+                loadout.Boost = item.DisplayName;
+                loadout.Rating = PlayerLoadout.Default.Rating + item.RatingBonus;
+            }
             Publish();
         }
 
