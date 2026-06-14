@@ -42,6 +42,7 @@ namespace CricketArena.EditorTools
             var cameraDirector = game.AddComponent<CameraDirector>();
             var assetBinder = game.AddComponent<RuntimeAssetBinder>();
             var animationDirector = game.AddComponent<PlayerAnimationDirector>();
+            var showcase = game.AddComponent<LobbyShowcaseController>();
             game.AddComponent<MobilePerformanceManager>();
             var networkClient = game.AddComponent<RealtimeMatchClient>();
             var networkSync = game.AddComponent<NetworkGameplaySynchronizer>();
@@ -61,6 +62,13 @@ namespace CricketArena.EditorTools
             bowler.transform.rotation = Quaternion.Euler(0, 180, 0);
             Animator batterAnimator = batter.AddComponent<Animator>();
             Animator bowlerAnimator = bowler.AddComponent<Animator>();
+            GameObject hero = CreatePlayer("LobbyHeroPlayer", blue, white, new Vector3(18f, 0, 6f));
+            hero.transform.rotation = Quaternion.Euler(0, -28f, 0);
+            GameObject pedestal = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            pedestal.name = "LobbyShowcasePedestal";
+            pedestal.transform.position = new Vector3(18f, 0.08f, 6f);
+            pedestal.transform.localScale = new Vector3(2.6f, 0.12f, 2.6f);
+            pedestal.GetComponent<Renderer>().sharedMaterial = Material("Showcase Dark Metal", new Color(0.025f, 0.03f, 0.035f));
             GameObject stadiumMount = new GameObject("StadiumAssetMount");
             GameObject batterMount = new GameObject("BatterAssetMount");
             GameObject bowlerMount = new GameObject("BowlerAssetMount");
@@ -90,14 +98,15 @@ namespace CricketArena.EditorTools
             target.transform.position = new Vector3(0, 0.52f, 20.8f);
 
             GameObject battingCam = CreateCameraRig("BattingCameraRig", new Vector3(0, 8.5f, 36f), new Vector3(15f, 180f, 0));
+            GameObject lobbyCam = CreateCameraRig("LobbyCameraRig", new Vector3(10f, 4.6f, 19f), new Vector3(8f, 151f, 0));
             GameObject replayCam = CreateCameraRig("ReplayCameraRig", new Vector3(-14f, 8f, 12f), new Vector3(18f, 130f, 0));
 
             Camera mainCamera = new GameObject("Main Camera").AddComponent<Camera>();
-            mainCamera.transform.SetPositionAndRotation(battingCam.transform.position, battingCam.transform.rotation);
+            mainCamera.transform.SetPositionAndRotation(lobbyCam.transform.position, lobbyCam.transform.rotation);
             mainCamera.gameObject.tag = "MainCamera";
             mainCamera.gameObject.AddComponent<AudioListener>();
 
-            GameObject ui = CreateHud(match, batting, bowling, networkClient, career, tournament);
+            GameObject ui = CreateHud(match, batting, bowling, networkClient, career, tournament, cameraDirector);
 
             SerializedObject careerObj = new SerializedObject(career);
             SetObject(careerObj, "matchManager", match);
@@ -135,9 +144,14 @@ namespace CricketArena.EditorTools
 
             SerializedObject cameraObj = new SerializedObject(cameraDirector);
             SetObject(cameraObj, "mainCamera", mainCamera);
+            SetObject(cameraObj, "lobbyCamera", lobbyCam.transform);
             SetObject(cameraObj, "battingCamera", battingCam.transform);
             SetObject(cameraObj, "replayCamera", replayCam.transform);
             cameraObj.ApplyModifiedPropertiesWithoutUndo();
+
+            SerializedObject showcaseObj = new SerializedObject(showcase);
+            SetObject(showcaseObj, "showcaseTarget", hero.transform);
+            showcaseObj.ApplyModifiedPropertiesWithoutUndo();
 
             SerializedObject assetBinderObj = new SerializedObject(assetBinder);
             SetObject(assetBinderObj, "stadiumMount", stadiumMount.transform);
@@ -269,7 +283,7 @@ namespace CricketArena.EditorTools
             return rig;
         }
 
-        private static GameObject CreateHud(MatchManager match, BattingController batting, BowlingController bowling, RealtimeMatchClient networkClient, CareerProgressionManager career, TournamentManager tournament)
+        private static GameObject CreateHud(MatchManager match, BattingController batting, BowlingController bowling, RealtimeMatchClient networkClient, CareerProgressionManager career, TournamentManager tournament, CameraDirector cameraDirector)
         {
             GameObject canvasObj = new GameObject("ScoreHUD");
             Canvas canvas = canvasObj.AddComponent<Canvas>();
@@ -281,6 +295,10 @@ namespace CricketArena.EditorTools
             GameObject leftPanel = CreatePanel("ModePanel", canvasObj.transform, new Vector2(0.02f, 0.16f), new Vector2(0.25f, 0.88f), new Color(0.02f, 0.025f, 0.03f, 0.80f));
             GameObject rightPanel = CreatePanel("SquadPanel", canvasObj.transform, new Vector2(0.73f, 0.16f), new Vector2(0.98f, 0.88f), new Color(0.02f, 0.025f, 0.03f, 0.80f));
             GameObject bottomBar = CreatePanel("ActionBar", canvasObj.transform, new Vector2(0.02f, 0.025f), new Vector2(0.98f, 0.14f), new Color(0.02f, 0.025f, 0.03f, 0.86f));
+            CanvasGroup topGroup = topBar.AddComponent<CanvasGroup>();
+            CanvasGroup leftGroup = leftPanel.AddComponent<CanvasGroup>();
+            CanvasGroup rightGroup = rightPanel.AddComponent<CanvasGroup>();
+            CanvasGroup bottomGroup = bottomBar.AddComponent<CanvasGroup>();
 
             GameObject scoreObj = CreateHudText("ScoreText", topBar.transform, "0/0", 28, new Vector2(0.01f, 0.1f), new Vector2(0.18f, 0.9f), TextAnchor.MiddleLeft);
             GameObject equationObj = CreateHudText("EquationText", topBar.transform, "24 from 6", 22, new Vector2(0.78f, 0.1f), new Vector2(0.98f, 0.9f), TextAnchor.MiddleRight);
@@ -323,10 +341,12 @@ namespace CricketArena.EditorTools
             CreateButton(leftPanel.transform, "OnlineModeButton", "Online Room", new Vector2(0.08f, 0.16f), new Vector2(0.92f, 0.26f), nameof(GameModeMenuController.StartOnlineRoom));
 
             var modes = canvasObj.AddComponent<GameModeMenuController>();
+            var screenDirector = canvasObj.AddComponent<ArenaScreenDirector>();
             SerializedObject modesObj = new SerializedObject(modes);
             SetObject(modesObj, "matchManager", match);
             SetObject(modesObj, "career", career);
             SetObject(modesObj, "tournament", tournament);
+            SetObject(modesObj, "screenDirector", screenDirector);
             SetObject(modesObj, "modeText", modeObj.GetComponent<Text>());
             modesObj.ApplyModifiedPropertiesWithoutUndo();
 
@@ -356,6 +376,18 @@ namespace CricketArena.EditorTools
             SetObject(skinObj, "loadoutText", loadoutObj.GetComponent<Text>());
             SetObject(skinObj, "primaryActionText", primaryActionObj.GetComponent<Text>());
             skinObj.ApplyModifiedPropertiesWithoutUndo();
+
+            SerializedObject screenObj = new SerializedObject(screenDirector);
+            SetObject(screenObj, "cameraDirector", cameraDirector);
+            SerializedProperty lobbyGroups = screenObj.FindProperty("lobbyGroups");
+            lobbyGroups.arraySize = 2;
+            lobbyGroups.GetArrayElementAtIndex(0).objectReferenceValue = leftGroup;
+            lobbyGroups.GetArrayElementAtIndex(1).objectReferenceValue = rightGroup;
+            SerializedProperty gameplayGroups = screenObj.FindProperty("gameplayGroups");
+            gameplayGroups.arraySize = 2;
+            gameplayGroups.GetArrayElementAtIndex(0).objectReferenceValue = topGroup;
+            gameplayGroups.GetArrayElementAtIndex(1).objectReferenceValue = bottomGroup;
+            screenObj.ApplyModifiedPropertiesWithoutUndo();
 
             foreach (Button button in canvasObj.GetComponentsInChildren<Button>())
             {

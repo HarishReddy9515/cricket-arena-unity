@@ -20,6 +20,7 @@ const requiredFiles = [
   "Assets/Scripts/Presentation/CricketAssetManifest.cs",
   "Assets/Scripts/Presentation/MobileHaptics.cs",
   "Assets/Scripts/Presentation/ImpactVfxController.cs",
+  "Assets/Scripts/Presentation/LobbyShowcaseController.cs",
   "Assets/Scripts/Presentation/MobilePerformanceManager.cs",
   "Assets/Scripts/Presentation/PlayerAnimationDirector.cs",
   "Assets/Scripts/Presentation/RuntimeAssetBinder.cs",
@@ -31,6 +32,7 @@ const requiredFiles = [
   "Assets/Scripts/UI/MultiplayerLobbyController.cs",
   "Assets/Scripts/UI/GameModeMenuController.cs",
   "Assets/Scripts/UI/ArenaLobbySkin.cs",
+  "Assets/Scripts/UI/ArenaScreenDirector.cs",
   "Assets/Scripts/Editor/ArenaSceneBuilder.cs",
   "Assets/Scripts/Editor/AssetReadinessValidator.cs",
   "Assets/Scripts/Editor/MobileBuildConfigurator.cs",
@@ -76,8 +78,11 @@ const replay = fs.readFileSync(path.join(root, "Assets/Scripts/Core/ReplayRecord
 const manifest = fs.readFileSync(path.join(root, "Assets/Scripts/Presentation/CricketAssetManifest.cs"), "utf8");
 const binder = fs.readFileSync(path.join(root, "Assets/Scripts/Presentation/RuntimeAssetBinder.cs"), "utf8");
 const impact = fs.readFileSync(path.join(root, "Assets/Scripts/Presentation/ImpactVfxController.cs"), "utf8");
+const showcase = fs.readFileSync(path.join(root, "Assets/Scripts/Presentation/LobbyShowcaseController.cs"), "utf8");
 const animation = fs.readFileSync(path.join(root, "Assets/Scripts/Presentation/PlayerAnimationDirector.cs"), "utf8");
 const performance = fs.readFileSync(path.join(root, "Assets/Scripts/Presentation/MobilePerformanceManager.cs"), "utf8");
+const screenDirector = fs.readFileSync(path.join(root, "Assets/Scripts/UI/ArenaScreenDirector.cs"), "utf8");
+const camera = fs.readFileSync(path.join(root, "Assets/Scripts/Presentation/CameraDirector.cs"), "utf8");
 
 for (const symbol of ["MatchPhase", "ApplyOutcome", "OnScoreChanged", "SyncAuthoritativeState", "Configure", "CricketGameMode"]) {
   if (!matchManager.includes(symbol)) throw new Error(`MatchManager missing ${symbol}`);
@@ -131,15 +136,23 @@ for (const symbol of ["GameModeMenuController", "StartQuickMatch", "StartPractic
   if (!modeMenu.includes(symbol)) throw new Error(`GameModeMenuController missing ${symbol}`);
 }
 
+if (!modeMenu.includes("ArenaScreenDirector")) {
+  throw new Error("GameModeMenuController missing ArenaScreenDirector");
+}
+
 for (const symbol of ["ArenaLobbySkin", "panelColor", "accentColor", "primaryActionText", "Apply"]) {
   if (!lobbySkin.includes(symbol)) throw new Error(`ArenaLobbySkin missing ${symbol}`);
+}
+
+for (const symbol of ["ArenaScreenDirector", "ShowLobby", "ShowGameplay", "CanvasGroup"]) {
+  if (!screenDirector.includes(symbol)) throw new Error(`ArenaScreenDirector missing ${symbol}`);
 }
 
 for (const symbol of ["join_room", "request_delivery", "resolveOutcome", "match_state", "sanitizeRoomCode", "MAX_ROOM_PLAYERS", "cleanupRooms", "RATE_LIMIT_MAX_MESSAGES", "/metrics", "decodeFrames"]) {
   if (!server.includes(symbol)) throw new Error(`authoritative-server missing ${symbol}`);
 }
 
-for (const symbol of ["MenuItem", "BuildScene", "CreateStadium", "CreatePlayer", "CreateHud", "RealtimeMatchClient", "NetworkGameplaySynchronizer", "RuntimeAssetBinder", "MobilePerformanceManager", "GameModeMenuController", "ArenaLobbySkin", "CreatePanel", "TopStatusBar", "ModePanel", "SquadPanel", "ActionBar", "PrimaryPlayButton", "QuickMatchButton", "CareerButton", "TournamentButton", "RoomCodeInput"]) {
+for (const symbol of ["MenuItem", "BuildScene", "CreateStadium", "CreatePlayer", "CreateHud", "RealtimeMatchClient", "NetworkGameplaySynchronizer", "RuntimeAssetBinder", "MobilePerformanceManager", "GameModeMenuController", "ArenaLobbySkin", "ArenaScreenDirector", "LobbyShowcaseController", "LobbyHeroPlayer", "LobbyCameraRig", "CreatePanel", "TopStatusBar", "ModePanel", "SquadPanel", "ActionBar", "PrimaryPlayButton", "QuickMatchButton", "CareerButton", "TournamentButton", "RoomCodeInput"]) {
   if (!sceneBuilder.includes(symbol)) throw new Error(`ArenaSceneBuilder missing ${symbol}`);
 }
 
@@ -157,6 +170,14 @@ for (const symbol of ["RuntimeAssetBinder", "ApplyManifest", "PlayBatHit", "Play
 
 for (const symbol of ["PlayerAnimationDirector", "PlayBowling", "PlayShot", "DeliverySpeed", "ShotIntent", "MatchPhase"]) {
   if (!animation.includes(symbol)) throw new Error(`PlayerAnimationDirector missing ${symbol}`);
+}
+
+for (const symbol of ["LobbyShowcaseController", "showcaseTarget", "rotationSpeed", "floatAmplitude"]) {
+  if (!showcase.includes(symbol)) throw new Error(`LobbyShowcaseController missing ${symbol}`);
+}
+
+for (const symbol of ["ShowLobbyCamera", "lobbyCamera", "ShowBattingCamera"]) {
+  if (!camera.includes(symbol)) throw new Error(`CameraDirector missing ${symbol}`);
 }
 
 for (const symbol of ["MobilePerformanceManager", "ApplyBattery", "ApplyBalanced", "ApplyPerformance", "targetFrameRate", "shadowDistance"]) {

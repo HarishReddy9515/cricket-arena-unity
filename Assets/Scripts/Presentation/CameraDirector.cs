@@ -5,6 +5,7 @@ namespace CricketArena.Presentation
     public sealed class CameraDirector : MonoBehaviour
     {
         [SerializeField] private Camera mainCamera;
+        [SerializeField] private Transform lobbyCamera;
         [SerializeField] private Transform battingCamera;
         [SerializeField] private Transform replayCamera;
         [SerializeField] private float followSpeed = 6f;
@@ -14,7 +15,7 @@ namespace CricketArena.Presentation
 
         private void Awake()
         {
-            targetRig = battingCamera;
+            targetRig = lobbyCamera != null ? lobbyCamera : battingCamera;
         }
 
         private void LateUpdate()
@@ -29,6 +30,11 @@ namespace CricketArena.Presentation
                 mainCamera.transform.position += Random.insideUnitSphere * shake;
                 shake = Mathf.Lerp(shake, 0f, Time.deltaTime * 8f);
             }
+        }
+
+        public void ShowLobbyCamera()
+        {
+            targetRig = lobbyCamera != null ? lobbyCamera : battingCamera;
         }
 
         public void ShowBattingCamera()

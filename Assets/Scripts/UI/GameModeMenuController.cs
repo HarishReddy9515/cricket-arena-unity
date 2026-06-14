@@ -9,12 +9,14 @@ namespace CricketArena.UI
         [SerializeField] private MatchManager matchManager;
         [SerializeField] private CareerProgressionManager career;
         [SerializeField] private TournamentManager tournament;
+        [SerializeField] private ArenaScreenDirector screenDirector;
         [SerializeField] private Text modeText;
 
         public void StartQuickMatch()
         {
             matchManager?.Configure(GameModeConfig.QuickMatch);
             matchManager?.StartChase();
+            screenDirector?.ShowGameplay();
             SetMode("Quick Match");
         }
 
@@ -22,18 +24,21 @@ namespace CricketArena.UI
         {
             matchManager?.Configure(GameModeConfig.PracticeNets);
             matchManager?.StartChase();
+            screenDirector?.ShowGameplay();
             SetMode("Practice Nets");
         }
 
         public void StartCareer()
         {
             career?.StartCareerMatch();
+            screenDirector?.ShowGameplay();
             SetMode($"Career Level {career?.Level ?? 1}");
         }
 
         public void StartTournament()
         {
             tournament?.StartTournament();
+            screenDirector?.ShowGameplay();
             SetMode("Tournament");
         }
 
@@ -49,6 +54,7 @@ namespace CricketArena.UI
                 AiDifficulty = 0.65f
             });
             matchManager?.StartChase();
+            screenDirector?.ShowGameplay();
             SetMode("Online Room");
         }
 

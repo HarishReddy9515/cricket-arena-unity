@@ -10,6 +10,9 @@ The generated prototype scene uses:
 - left mode panel for Quick Match, Practice Nets, Career, Tournament, and Online Room
 - right squad panel for team identity, room code, connection, and loadout
 - bottom action bar for ready, delivery, shot, and primary play action
+- a separate 3D lobby camera focused on the showcase player
+- a rotating player pedestal for the pre-match lobby
+- screen-state switching from lobby chrome into gameplay HUD
 
 ## Visual Style
 
@@ -23,5 +26,7 @@ The generated prototype scene uses:
 ## Unity Components
 
 - `ArenaLobbySkin` applies the lobby color treatment and default lobby text.
+- `ArenaScreenDirector` switches lobby panels, gameplay panels, and camera view.
+- `LobbyShowcaseController` rotates and floats the lobby showcase player.
 - `ArenaSceneBuilder` creates the full lobby hierarchy during prototype scene generation.
 - `GameModeMenuController` and `MultiplayerLobbyController` wire gameplay actions into the lobby.
