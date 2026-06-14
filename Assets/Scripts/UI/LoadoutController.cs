@@ -10,6 +10,8 @@ namespace CricketArena.UI
 
         private PlayerLoadout loadout = PlayerLoadout.Default;
 
+        public PlayerLoadout CurrentLoadout => loadout;
+
         private void Awake()
         {
             Publish();
@@ -52,6 +54,12 @@ namespace CricketArena.UI
         {
             loadout.Xp += Mathf.Max(0, xp);
             loadout.Coins += Mathf.Max(0, coins);
+            Publish();
+        }
+
+        public void ApplyLoadout(PlayerLoadout value)
+        {
+            loadout = value;
             Publish();
         }
 

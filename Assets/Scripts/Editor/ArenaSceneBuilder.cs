@@ -111,7 +111,7 @@ namespace CricketArena.EditorTools
             mainCamera.gameObject.tag = "MainCamera";
             mainCamera.gameObject.AddComponent<AudioListener>();
 
-            GameObject ui = CreateHud(match, batting, bowling, networkClient, career, tournament, cameraDirector, inventory, performance, battingAssist);
+            GameObject ui = CreateHud(match, batting, bowling, networkClient, career, tournament, season, cameraDirector, inventory, performance, battingAssist);
 
             SerializedObject careerObj = new SerializedObject(career);
             SetObject(careerObj, "matchManager", match);
@@ -335,7 +335,7 @@ namespace CricketArena.EditorTools
             return rig;
         }
 
-        private static GameObject CreateHud(MatchManager match, BattingController batting, BowlingController bowling, RealtimeMatchClient networkClient, CareerProgressionManager career, TournamentManager tournament, CameraDirector cameraDirector, InventoryManager inventory, MobilePerformanceManager performance, BattingAssistController battingAssist)
+        private static GameObject CreateHud(MatchManager match, BattingController batting, BowlingController bowling, RealtimeMatchClient networkClient, CareerProgressionManager career, TournamentManager tournament, SeasonProgression season, CameraDirector cameraDirector, InventoryManager inventory, MobilePerformanceManager performance, BattingAssistController battingAssist)
         {
             GameObject canvasObj = new GameObject("ScoreHUD");
             Canvas canvas = canvasObj.AddComponent<Canvas>();
@@ -449,6 +449,19 @@ namespace CricketArena.EditorTools
             SetObject(graphicsObj, "performanceManager", performance);
             SetObject(graphicsObj, "statusText", networkObj.GetComponent<Text>());
             graphicsObj.ApplyModifiedPropertiesWithoutUndo();
+
+            var saveGame = canvasObj.AddComponent<SaveGameManager>();
+            SerializedObject saveObj = new SerializedObject(saveGame);
+            SetObject(saveObj, "loadoutController", loadout);
+            SetObject(saveObj, "seasonProgression", season);
+            SetObject(saveObj, "performanceManager", performance);
+            saveObj.ApplyModifiedPropertiesWithoutUndo();
+
+            var rewardBridge = canvasObj.AddComponent<SeasonRewardBridge>();
+            SerializedObject rewardObj = new SerializedObject(rewardBridge);
+            SetObject(rewardObj, "seasonProgression", season);
+            SetObject(rewardObj, "loadoutController", loadout);
+            rewardObj.ApplyModifiedPropertiesWithoutUndo();
 
             SerializedObject screenObj = new SerializedObject(screenDirector);
             SetObject(screenObj, "cameraDirector", cameraDirector);

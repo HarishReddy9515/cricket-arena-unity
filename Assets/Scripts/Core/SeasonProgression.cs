@@ -31,11 +31,20 @@ namespace CricketArena.Core
         };
 
         public UnityEvent<string, int, int> OnSeasonChanged;
+        public UnityEvent<int, int> OnMissionCompleted;
 
         public string SeasonName => seasonName;
         public int Tier => tier;
         public int SeasonXp => seasonXp;
         public SeasonMission[] Missions => missions;
+
+        public void ApplySeasonState(string savedSeasonName, int savedTier, int savedSeasonXp)
+        {
+            seasonName = string.IsNullOrWhiteSpace(savedSeasonName) ? seasonName : savedSeasonName;
+            tier = Mathf.Max(1, savedTier);
+            seasonXp = Mathf.Max(0, savedSeasonXp);
+            Publish();
+        }
 
         private void Awake()
         {
@@ -79,6 +88,7 @@ namespace CricketArena.Core
                 {
                     seasonXp += missions[i].XpReward;
                     tier = Mathf.Max(1, 1 + seasonXp / 250);
+                    OnMissionCompleted?.Invoke(missions[i].XpReward, missions[i].CoinReward);
                 }
                 Publish();
                 return;

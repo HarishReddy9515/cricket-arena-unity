@@ -46,3 +46,4 @@ The lobby is backed by original live-game style systems:
 - `InventoryManager` tracks unlocked bats, kits, boosts, and banners.
 - `SeasonProgression` tracks season missions, tier, and XP.
 - `PlayerLoadout` stores squad identity, equipment, rating, XP, and coins.
+- `SaveGameManager` persists loadout, season progress, and graphics preference locally.

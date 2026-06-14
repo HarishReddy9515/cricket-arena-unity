@@ -19,6 +19,7 @@ This is **not** a clone of Real Cricket, WCC, EA Sports FC, or PUBG. It is an or
 - 3D lobby camera and showcase player staging
 - loadout customization for bat, kit, and boost
 - inventory, season missions, and graphics preset controls
+- local save/load for loadout, season, and graphics preferences
 - procedural stadium banners and crowd color bands
 - cinematic camera director
 - mobile haptics bridge
@@ -108,6 +109,10 @@ The scene builder creates:
 ## Build And Release
 
 See [docs/BUILD_AND_RELEASE.md](docs/BUILD_AND_RELEASE.md). The project includes Unity batch-mode Android build entry points, local smoke checks, GitHub Actions checks, and Docker deployment files for the authoritative server.
+
+## Project Status
+
+See [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md) for the current implemented scope, Unity requirements, asset requirements, and remaining commercial-game gaps.
 
 ## Multiplayer Operations
 
@@ -209,6 +214,7 @@ Then open the generated Unity scene, press **Connect**, enter or keep `ARENA-24`
 - 3D lobby camera and showcase player staging
 - loadout customization and stadium atmosphere dressing
 - inventory, season missions, and graphics preset controls
+- local save/load and mission reward wallet loop
 - authoritative server validation
 - optimized mobile rendering
 - replay highlights
