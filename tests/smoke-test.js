@@ -18,6 +18,7 @@ const requiredFiles = [
   "Assets/Scripts/Core/ReplayEvent.cs",
   "Assets/Scripts/Core/ReplayRecorder.cs",
   "Assets/Scripts/Gameplay/BattingController.cs",
+  "Assets/Scripts/Gameplay/AIBowlingStrategy.cs",
   "Assets/Scripts/Gameplay/BowlingController.cs",
   "Assets/Scripts/Gameplay/BallPhysicsController.cs",
   "Assets/Scripts/Presentation/CameraDirector.cs",
@@ -49,6 +50,7 @@ const requiredFiles = [
   "docs/MULTIPLAYER_OPERATIONS.md",
   "docs/MOBILE_PERFORMANCE.md",
   "docs/GAME_MODES.md",
+  "docs/GAMEPLAY_AI.md",
   "docs/UI_DIRECTION.md",
   "scripts/run-checks.ps1",
   ".github/workflows/smoke.yml",
@@ -72,6 +74,7 @@ const season = fs.readFileSync(path.join(root, "Assets/Scripts/Core/SeasonProgre
 const career = fs.readFileSync(path.join(root, "Assets/Scripts/Core/CareerProgressionManager.cs"), "utf8");
 const tournament = fs.readFileSync(path.join(root, "Assets/Scripts/Core/TournamentManager.cs"), "utf8");
 const batting = fs.readFileSync(path.join(root, "Assets/Scripts/Gameplay/BattingController.cs"), "utf8");
+const aiBowling = fs.readFileSync(path.join(root, "Assets/Scripts/Gameplay/AIBowlingStrategy.cs"), "utf8");
 const ball = fs.readFileSync(path.join(root, "Assets/Scripts/Gameplay/BallPhysicsController.cs"), "utf8");
 const network = fs.readFileSync(path.join(root, "Assets/Scripts/Networking/RealtimeMatchClient.cs"), "utf8");
 const protocol = fs.readFileSync(path.join(root, "Assets/Scripts/Networking/MatchProtocol.cs"), "utf8");
@@ -96,7 +99,7 @@ const performance = fs.readFileSync(path.join(root, "Assets/Scripts/Presentation
 const screenDirector = fs.readFileSync(path.join(root, "Assets/Scripts/UI/ArenaScreenDirector.cs"), "utf8");
 const camera = fs.readFileSync(path.join(root, "Assets/Scripts/Presentation/CameraDirector.cs"), "utf8");
 
-for (const symbol of ["MatchPhase", "ApplyOutcome", "OnScoreChanged", "SyncAuthoritativeState", "Configure", "CricketGameMode"]) {
+for (const symbol of ["MatchPhase", "ApplyOutcome", "OnScoreChanged", "SyncAuthoritativeState", "Configure", "CricketGameMode", "AiDifficulty"]) {
   if (!matchManager.includes(symbol)) throw new Error(`MatchManager missing ${symbol}`);
 }
 
@@ -144,6 +147,14 @@ if (!fs.readFileSync(path.join(root, "Assets/Scripts/Gameplay/BowlingController.
   throw new Error("BowlingController missing PlayerAnimationDirector");
 }
 
+for (const symbol of ["AIBowlingStrategy", "Choose", "Pressure", "AiDifficulty", "TargetRuns", "MaxBalls"]) {
+  if (!aiBowling.includes(symbol)) throw new Error(`AIBowlingStrategy missing ${symbol}`);
+}
+
+if (!fs.readFileSync(path.join(root, "Assets/Scripts/Gameplay/BowlingController.cs"), "utf8").includes("aiStrategy")) {
+  throw new Error("BowlingController missing aiStrategy");
+}
+
 for (const symbol of ["ClientWebSocket", "ConnectAsync", "SendAsync", "ReceiveLoop", "Disconnect", "JoinRoom", "SetReady", "RequestDelivery", "SendShot", "ReceiveJson", "LastOutboundJson", "LastLatencyMs", "OnServerError", "ScheduleReconnect", "ReconnectAttempts", "heartbeatIntervalSeconds"]) {
   if (!network.includes(symbol)) throw new Error(`RealtimeMatchClient missing ${symbol}`);
 }
@@ -188,7 +199,7 @@ for (const symbol of ["join_room", "request_delivery", "resolveOutcome", "match_
   if (!server.includes(symbol)) throw new Error(`authoritative-server missing ${symbol}`);
 }
 
-for (const symbol of ["MenuItem", "BuildScene", "CreateStadium", "CreateAtmosphere", "Arena Banner", "Crowd Color Band", "CreatePlayer", "CreateHud", "RealtimeMatchClient", "NetworkGameplaySynchronizer", "RuntimeAssetBinder", "MobilePerformanceManager", "GameModeMenuController", "ArenaLobbySkin", "ArenaScreenDirector", "LobbyShowcaseController", "LoadoutController", "GraphicsSettingsController", "SeasonProgression", "InventoryManager", "BatLoadoutButton", "KitLoadoutButton", "BoostLoadoutButton", "BatteryGraphicsButton", "BalancedGraphicsButton", "PerformanceGraphicsButton", "LobbyHeroPlayer", "LobbyCameraRig", "CreatePanel", "TopStatusBar", "ModePanel", "SquadPanel", "ActionBar", "PrimaryPlayButton", "QuickMatchButton", "CareerButton", "TournamentButton", "RoomCodeInput"]) {
+for (const symbol of ["MenuItem", "BuildScene", "CreateStadium", "CreateAtmosphere", "Arena Banner", "Crowd Color Band", "CreatePlayer", "CreateHud", "AIBowlingStrategy", "RealtimeMatchClient", "NetworkGameplaySynchronizer", "RuntimeAssetBinder", "MobilePerformanceManager", "GameModeMenuController", "ArenaLobbySkin", "ArenaScreenDirector", "LobbyShowcaseController", "LoadoutController", "GraphicsSettingsController", "SeasonProgression", "InventoryManager", "BatLoadoutButton", "KitLoadoutButton", "BoostLoadoutButton", "BatteryGraphicsButton", "BalancedGraphicsButton", "PerformanceGraphicsButton", "LobbyHeroPlayer", "LobbyCameraRig", "CreatePanel", "TopStatusBar", "ModePanel", "SquadPanel", "ActionBar", "PrimaryPlayButton", "QuickMatchButton", "CareerButton", "TournamentButton", "RoomCodeInput"]) {
   if (!sceneBuilder.includes(symbol)) throw new Error(`ArenaSceneBuilder missing ${symbol}`);
 }
 

@@ -10,6 +10,7 @@ namespace CricketArena.Gameplay
         [SerializeField] private BallPhysicsController ballPhysics;
         [SerializeField] private Animator bowlerAnimator;
         [SerializeField] private PlayerAnimationDirector animationDirector;
+        [SerializeField] private AIBowlingStrategy aiStrategy;
         [SerializeField] private Transform releasePoint;
         [SerializeField] private Transform targetPoint;
 
@@ -55,6 +56,11 @@ namespace CricketArena.Gameplay
             if (deliveries == null || deliveries.Length == 0)
             {
                 return DeliveryProfile.Default;
+            }
+
+            if (aiStrategy != null)
+            {
+                return aiStrategy.Choose(deliveries);
             }
 
             int need = matchManager.TargetRuns - matchManager.Runs;

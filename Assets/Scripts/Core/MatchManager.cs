@@ -18,6 +18,7 @@ namespace CricketArena.Core
         [SerializeField] private int targetRuns = 24;
         [SerializeField] private int maxBalls = 6;
         [SerializeField] private int maxWickets = 2;
+        [SerializeField] private float aiDifficulty = 0.55f;
 
         [Header("Events")]
         public UnityEvent<int, int, int, int> OnScoreChanged;
@@ -31,6 +32,7 @@ namespace CricketArena.Core
         public int TargetRuns => targetRuns;
         public int MaxBalls => maxBalls;
         public int MaxWickets => maxWickets;
+        public float AiDifficulty => aiDifficulty;
 
         public void Configure(GameModeConfig config)
         {
@@ -38,6 +40,7 @@ namespace CricketArena.Core
             targetRuns = Mathf.Max(1, config.TargetRuns);
             maxBalls = Mathf.Max(1, config.MaxBalls);
             maxWickets = Mathf.Max(1, config.MaxWickets);
+            aiDifficulty = Mathf.Clamp01(config.AiDifficulty);
             Publish(config.DisplayName);
         }
 

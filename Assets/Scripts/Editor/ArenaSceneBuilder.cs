@@ -42,6 +42,7 @@ namespace CricketArena.EditorTools
             var impactVfx = game.AddComponent<ImpactVfxController>();
             var batting = game.AddComponent<BattingController>();
             var bowling = game.AddComponent<BowlingController>();
+            var aiBowling = game.AddComponent<AIBowlingStrategy>();
             var cameraDirector = game.AddComponent<CameraDirector>();
             var assetBinder = game.AddComponent<RuntimeAssetBinder>();
             var animationDirector = game.AddComponent<PlayerAnimationDirector>();
@@ -135,10 +136,15 @@ namespace CricketArena.EditorTools
             SetObject(bowlingObj, "ballPhysics", ballPhysics);
             SetObject(bowlingObj, "bowlerAnimator", bowlerAnimator);
             SetObject(bowlingObj, "animationDirector", animationDirector);
+            SetObject(bowlingObj, "aiStrategy", aiBowling);
             SetObject(bowlingObj, "releasePoint", release.transform);
             SetObject(bowlingObj, "targetPoint", target.transform);
             SetDeliveries(bowlingObj);
             bowlingObj.ApplyModifiedPropertiesWithoutUndo();
+
+            SerializedObject aiBowlingObj = new SerializedObject(aiBowling);
+            SetObject(aiBowlingObj, "matchManager", match);
+            aiBowlingObj.ApplyModifiedPropertiesWithoutUndo();
 
             SerializedObject ballObj = new SerializedObject(ballPhysics);
             SetObject(ballObj, "body", body);

@@ -11,6 +11,7 @@ This is **not** a clone of Real Cricket, WCC, EA Sports FC, or PUBG. It is an or
 - batting timing controller
 - bowling delivery controller
 - ball physics controller
+- adaptive AI bowling strategy
 - match state manager
 - original game modes: quick match, practice nets, career, tournament, online room
 - premium mobile lobby UI scaffold
@@ -156,6 +157,10 @@ See [docs/ANIMATION_PIPELINE.md](docs/ANIMATION_PIPELINE.md). `PlayerAnimationDi
 
 See [docs/GAME_MODES.md](docs/GAME_MODES.md). The generated prototype includes buttons for Quick Match, Practice Nets, Career Chase, Tournament Chase, and Online Room. These are original systems built around configurable match rules and progression.
 
+## Gameplay AI
+
+See [docs/GAMEPLAY_AI.md](docs/GAMEPLAY_AI.md). Offline bowling now adapts to mode difficulty, runs required, balls remaining, and wickets lost.
+
 ## UI Direction
 
 See [docs/UI_DIRECTION.md](docs/UI_DIRECTION.md). The scene builder now creates an original premium mobile sports lobby with top status bar, mode panel, squad/loadout panel, bottom action bar, highlighted primary play action, 3D showcase player, stadium atmosphere dressing, and lobby-to-gameplay screen switching.
@@ -193,6 +198,7 @@ Then open the generated Unity scene, press **Connect**, enter or keep `ARENA-24`
 - Rigged player models
 - animation-driven batting and bowling
 - realistic ball physics
+- adaptive AI bowling
 - mobile haptics
 - cinematic replay camera
 - online friend rooms
