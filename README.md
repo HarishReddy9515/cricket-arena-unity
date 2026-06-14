@@ -13,6 +13,7 @@ This is **not** a clone of Real Cricket, WCC, EA Sports FC, or PUBG. It is an or
 - ball physics controller
 - match state manager
 - original game modes: quick match, practice nets, career, tournament, online room
+- premium mobile lobby UI scaffold
 - cinematic camera director
 - mobile haptics bridge
 - WebSocket-style multiplayer client scaffold
@@ -151,6 +152,10 @@ See [docs/ANIMATION_PIPELINE.md](docs/ANIMATION_PIPELINE.md). `PlayerAnimationDi
 
 See [docs/GAME_MODES.md](docs/GAME_MODES.md). The generated prototype includes buttons for Quick Match, Practice Nets, Career Chase, Tournament Chase, and Online Room. These are original systems built around configurable match rules and progression.
 
+## UI Direction
+
+See [docs/UI_DIRECTION.md](docs/UI_DIRECTION.md). The scene builder now creates an original premium mobile sports lobby with top status bar, mode panel, squad panel, bottom action bar, and highlighted primary play action.
+
 ## Unity Multiplayer Flow
 
 The generated prototype scene now includes a `RealtimeMatchClient` and `MultiplayerLobbyController`.
@@ -188,6 +193,7 @@ Then open the generated Unity scene, press **Connect**, enter or keep `ARENA-24`
 - cinematic replay camera
 - online friend rooms
 - quick match, practice nets, career, tournament, and online room modes
+- premium mobile sports lobby UI
 - authoritative server validation
 - optimized mobile rendering
 - replay highlights

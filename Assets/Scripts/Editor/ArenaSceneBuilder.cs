@@ -277,21 +277,32 @@ namespace CricketArena.EditorTools
             canvasObj.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             canvasObj.AddComponent<GraphicRaycaster>();
 
-            GameObject scoreObj = CreateHudText("ScoreText", canvasObj.transform, "0/0", 34, new Vector2(0.04f, 0.88f), new Vector2(0.24f, 0.98f), TextAnchor.MiddleLeft);
-            GameObject equationObj = CreateHudText("EquationText", canvasObj.transform, "24 from 6", 28, new Vector2(0.76f, 0.88f), new Vector2(0.96f, 0.98f), TextAnchor.MiddleRight);
-            GameObject networkObj = CreateHudText("NetworkStatusText", canvasObj.transform, "Offline", 18, new Vector2(0.04f, 0.78f), new Vector2(0.38f, 0.84f), TextAnchor.MiddleLeft);
-            GameObject modeObj = CreateHudText("ModeText", canvasObj.transform, "Select Mode", 20, new Vector2(0.40f, 0.78f), new Vector2(0.70f, 0.84f), TextAnchor.MiddleCenter);
+            GameObject topBar = CreatePanel("TopStatusBar", canvasObj.transform, new Vector2(0.02f, 0.90f), new Vector2(0.98f, 0.985f), new Color(0.02f, 0.025f, 0.03f, 0.88f));
+            GameObject leftPanel = CreatePanel("ModePanel", canvasObj.transform, new Vector2(0.02f, 0.16f), new Vector2(0.25f, 0.88f), new Color(0.02f, 0.025f, 0.03f, 0.80f));
+            GameObject rightPanel = CreatePanel("SquadPanel", canvasObj.transform, new Vector2(0.73f, 0.16f), new Vector2(0.98f, 0.88f), new Color(0.02f, 0.025f, 0.03f, 0.80f));
+            GameObject bottomBar = CreatePanel("ActionBar", canvasObj.transform, new Vector2(0.02f, 0.025f), new Vector2(0.98f, 0.14f), new Color(0.02f, 0.025f, 0.03f, 0.86f));
+
+            GameObject scoreObj = CreateHudText("ScoreText", topBar.transform, "0/0", 28, new Vector2(0.01f, 0.1f), new Vector2(0.18f, 0.9f), TextAnchor.MiddleLeft);
+            GameObject equationObj = CreateHudText("EquationText", topBar.transform, "24 from 6", 22, new Vector2(0.78f, 0.1f), new Vector2(0.98f, 0.9f), TextAnchor.MiddleRight);
+            GameObject networkObj = CreateHudText("NetworkStatusText", topBar.transform, "Offline", 16, new Vector2(0.53f, 0.1f), new Vector2(0.76f, 0.9f), TextAnchor.MiddleRight);
+            GameObject modeObj = CreateHudText("ModeText", topBar.transform, "Select Mode", 20, new Vector2(0.26f, 0.1f), new Vector2(0.52f, 0.9f), TextAnchor.MiddleCenter);
+            GameObject titleObj = CreateHudText("LobbyTitleText", topBar.transform, "CRICKET ARENA", 24, new Vector2(0.19f, 0.1f), new Vector2(0.35f, 0.9f), TextAnchor.MiddleLeft);
+            GameObject seasonObj = CreateHudText("SeasonText", leftPanel.transform, "Season 01 | Night League", 16, new Vector2(0.08f, 0.86f), new Vector2(0.92f, 0.96f), TextAnchor.MiddleLeft);
+            GameObject squadObj = CreateHudText("SquadText", rightPanel.transform, "Harish XI", 22, new Vector2(0.08f, 0.64f), new Vector2(0.92f, 0.88f), TextAnchor.UpperLeft);
+            GameObject loadoutObj = CreateHudText("LoadoutText", rightPanel.transform, "Bat: Balanced", 16, new Vector2(0.08f, 0.36f), new Vector2(0.92f, 0.58f), TextAnchor.UpperLeft);
+            GameObject currencyObj = CreateHudText("CurrencyText", rightPanel.transform, "XP 0 | Coins 0", 16, new Vector2(0.08f, 0.88f), new Vector2(0.92f, 0.97f), TextAnchor.MiddleRight);
+            GameObject primaryActionObj = CreateHudText("PrimaryActionText", bottomBar.transform, "PLAY", 24, new Vector2(0.77f, 0.12f), new Vector2(0.94f, 0.88f), TextAnchor.MiddleCenter);
             GameObject textObj = new GameObject("MessageText");
-            textObj.transform.SetParent(canvasObj.transform);
+            textObj.transform.SetParent(topBar.transform);
             Text text = textObj.AddComponent<Text>();
             text.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
-            text.text = "Cricket Arena";
+            text.text = "Ready";
             text.color = Color.white;
-            text.fontSize = 32;
+            text.fontSize = 18;
             text.alignment = TextAnchor.UpperCenter;
             RectTransform textRect = text.GetComponent<RectTransform>();
-            textRect.anchorMin = new Vector2(0.1f, 0.84f);
-            textRect.anchorMax = new Vector2(0.9f, 0.98f);
+            textRect.anchorMin = new Vector2(0.36f, 0.1f);
+            textRect.anchorMax = new Vector2(0.54f, 0.9f);
             textRect.offsetMin = Vector2.zero;
             textRect.offsetMax = Vector2.zero;
 
@@ -305,11 +316,11 @@ namespace CricketArena.EditorTools
             SetObject(controlsObj, "bowlingController", bowling);
             controlsObj.ApplyModifiedPropertiesWithoutUndo();
 
-            CreateButton(canvasObj.transform, "QuickMatchButton", "Quick", new Vector2(0.04f, 0.04f), new Vector2(0.15f, 0.11f), nameof(GameModeMenuController.StartQuickMatch));
-            CreateButton(canvasObj.transform, "PracticeNetsButton", "Nets", new Vector2(0.16f, 0.04f), new Vector2(0.27f, 0.11f), nameof(GameModeMenuController.StartPracticeNets));
-            CreateButton(canvasObj.transform, "CareerButton", "Career", new Vector2(0.28f, 0.04f), new Vector2(0.40f, 0.11f), nameof(GameModeMenuController.StartCareer));
-            CreateButton(canvasObj.transform, "TournamentButton", "Cup", new Vector2(0.41f, 0.04f), new Vector2(0.52f, 0.11f), nameof(GameModeMenuController.StartTournament));
-            CreateButton(canvasObj.transform, "OnlineModeButton", "Online", new Vector2(0.53f, 0.04f), new Vector2(0.65f, 0.11f), nameof(GameModeMenuController.StartOnlineRoom));
+            CreateButton(leftPanel.transform, "QuickMatchButton", "Quick Match", new Vector2(0.08f, 0.72f), new Vector2(0.92f, 0.82f), nameof(GameModeMenuController.StartQuickMatch));
+            CreateButton(leftPanel.transform, "PracticeNetsButton", "Practice Nets", new Vector2(0.08f, 0.58f), new Vector2(0.92f, 0.68f), nameof(GameModeMenuController.StartPracticeNets));
+            CreateButton(leftPanel.transform, "CareerButton", "Career", new Vector2(0.08f, 0.44f), new Vector2(0.92f, 0.54f), nameof(GameModeMenuController.StartCareer));
+            CreateButton(leftPanel.transform, "TournamentButton", "Tournament", new Vector2(0.08f, 0.30f), new Vector2(0.92f, 0.40f), nameof(GameModeMenuController.StartTournament));
+            CreateButton(leftPanel.transform, "OnlineModeButton", "Online Room", new Vector2(0.08f, 0.16f), new Vector2(0.92f, 0.26f), nameof(GameModeMenuController.StartOnlineRoom));
 
             var modes = canvasObj.AddComponent<GameModeMenuController>();
             SerializedObject modesObj = new SerializedObject(modes);
@@ -319,12 +330,13 @@ namespace CricketArena.EditorTools
             SetObject(modesObj, "modeText", modeObj.GetComponent<Text>());
             modesObj.ApplyModifiedPropertiesWithoutUndo();
 
-            InputField roomInput = CreateInput(canvasObj.transform, "ARENA-24", new Vector2(0.04f, 0.68f), new Vector2(0.28f, 0.75f));
-            CreateButton(canvasObj.transform, "ConnectButton", "Connect", new Vector2(0.04f, 0.59f), new Vector2(0.18f, 0.66f), nameof(MultiplayerLobbyController.Connect));
-            CreateButton(canvasObj.transform, "JoinButton", "Join", new Vector2(0.19f, 0.59f), new Vector2(0.31f, 0.66f), nameof(MultiplayerLobbyController.JoinRoom));
-            CreateButton(canvasObj.transform, "ReadyButton", "Ready", new Vector2(0.32f, 0.59f), new Vector2(0.44f, 0.66f), nameof(MultiplayerLobbyController.Ready));
-            CreateButton(canvasObj.transform, "DeliveryButton", "Delivery", new Vector2(0.04f, 0.50f), new Vector2(0.20f, 0.57f), nameof(MultiplayerLobbyController.RequestDelivery));
-            CreateButton(canvasObj.transform, "ShotButton", "Shot", new Vector2(0.21f, 0.50f), new Vector2(0.35f, 0.57f), nameof(MultiplayerLobbyController.SendShot));
+            InputField roomInput = CreateInput(rightPanel.transform, "ARENA-24", new Vector2(0.08f, 0.22f), new Vector2(0.92f, 0.31f));
+            CreateButton(rightPanel.transform, "ConnectButton", "Connect", new Vector2(0.08f, 0.10f), new Vector2(0.45f, 0.19f), nameof(MultiplayerLobbyController.Connect));
+            CreateButton(rightPanel.transform, "JoinButton", "Join", new Vector2(0.55f, 0.10f), new Vector2(0.92f, 0.19f), nameof(MultiplayerLobbyController.JoinRoom));
+            CreateButton(bottomBar.transform, "ReadyButton", "Ready", new Vector2(0.04f, 0.16f), new Vector2(0.17f, 0.84f), nameof(MultiplayerLobbyController.Ready));
+            CreateButton(bottomBar.transform, "DeliveryButton", "Delivery", new Vector2(0.19f, 0.16f), new Vector2(0.34f, 0.84f), nameof(MultiplayerLobbyController.RequestDelivery));
+            CreateButton(bottomBar.transform, "ShotButton", "Shot", new Vector2(0.36f, 0.16f), new Vector2(0.50f, 0.84f), nameof(MultiplayerLobbyController.SendShot));
+            CreateButton(bottomBar.transform, "PrimaryPlayButton", "PLAY", new Vector2(0.76f, 0.10f), new Vector2(0.95f, 0.90f), nameof(MultiplayerLobbyController.RequestDelivery));
 
             var lobby = canvasObj.AddComponent<MultiplayerLobbyController>();
             SerializedObject lobbyObj = new SerializedObject(lobby);
@@ -335,6 +347,16 @@ namespace CricketArena.EditorTools
             SetObject(lobbyObj, "statusText", networkObj.GetComponent<Text>());
             lobbyObj.ApplyModifiedPropertiesWithoutUndo();
 
+            var skin = canvasObj.AddComponent<ArenaLobbySkin>();
+            SerializedObject skinObj = new SerializedObject(skin);
+            SetObject(skinObj, "titleText", titleObj.GetComponent<Text>());
+            SetObject(skinObj, "seasonText", seasonObj.GetComponent<Text>());
+            SetObject(skinObj, "currencyText", currencyObj.GetComponent<Text>());
+            SetObject(skinObj, "squadText", squadObj.GetComponent<Text>());
+            SetObject(skinObj, "loadoutText", loadoutObj.GetComponent<Text>());
+            SetObject(skinObj, "primaryActionText", primaryActionObj.GetComponent<Text>());
+            skinObj.ApplyModifiedPropertiesWithoutUndo();
+
             foreach (Button button in canvasObj.GetComponentsInChildren<Button>())
             {
                 button.onClick.RemoveAllListeners();
@@ -344,6 +366,7 @@ namespace CricketArena.EditorTools
                 if (method == "Ready") button.onClick.AddListener(lobby.Ready);
                 if (method == "Delivery") button.onClick.AddListener(lobby.RequestDelivery);
                 if (method == "Shot") button.onClick.AddListener(lobby.SendShot);
+                if (method == "PrimaryPlay") button.onClick.AddListener(lobby.RequestDelivery);
                 if (method == "QuickMatch") button.onClick.AddListener(modes.StartQuickMatch);
                 if (method == "PracticeNets") button.onClick.AddListener(modes.StartPracticeNets);
                 if (method == "Career") button.onClick.AddListener(modes.StartCareer);
@@ -352,6 +375,20 @@ namespace CricketArena.EditorTools
             }
 
             return canvasObj;
+        }
+
+        private static GameObject CreatePanel(string name, Transform parent, Vector2 anchorMin, Vector2 anchorMax, Color color)
+        {
+            GameObject panel = new GameObject(name);
+            panel.transform.SetParent(parent);
+            Image image = panel.AddComponent<Image>();
+            image.color = color;
+            RectTransform rect = panel.GetComponent<RectTransform>();
+            rect.anchorMin = anchorMin;
+            rect.anchorMax = anchorMax;
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+            return panel;
         }
 
         private static GameObject CreateHudText(string name, Transform parent, string value, int size, Vector2 anchorMin, Vector2 anchorMax, TextAnchor anchor)

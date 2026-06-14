@@ -30,6 +30,7 @@ const requiredFiles = [
   "Assets/Scripts/UI/MobileControlsController.cs",
   "Assets/Scripts/UI/MultiplayerLobbyController.cs",
   "Assets/Scripts/UI/GameModeMenuController.cs",
+  "Assets/Scripts/UI/ArenaLobbySkin.cs",
   "Assets/Scripts/Editor/ArenaSceneBuilder.cs",
   "Assets/Scripts/Editor/AssetReadinessValidator.cs",
   "Assets/Scripts/Editor/MobileBuildConfigurator.cs",
@@ -40,6 +41,7 @@ const requiredFiles = [
   "docs/MULTIPLAYER_OPERATIONS.md",
   "docs/MOBILE_PERFORMANCE.md",
   "docs/GAME_MODES.md",
+  "docs/UI_DIRECTION.md",
   "scripts/run-checks.ps1",
   ".github/workflows/smoke.yml",
   "server/Dockerfile",
@@ -64,6 +66,7 @@ const protocol = fs.readFileSync(path.join(root, "Assets/Scripts/Networking/Matc
 const networkSync = fs.readFileSync(path.join(root, "Assets/Scripts/Networking/NetworkGameplaySynchronizer.cs"), "utf8");
 const lobby = fs.readFileSync(path.join(root, "Assets/Scripts/UI/MultiplayerLobbyController.cs"), "utf8");
 const modeMenu = fs.readFileSync(path.join(root, "Assets/Scripts/UI/GameModeMenuController.cs"), "utf8");
+const lobbySkin = fs.readFileSync(path.join(root, "Assets/Scripts/UI/ArenaLobbySkin.cs"), "utf8");
 const server = fs.readFileSync(path.join(root, "server/authoritative-server.js"), "utf8");
 const sceneBuilder = fs.readFileSync(path.join(root, "Assets/Scripts/Editor/ArenaSceneBuilder.cs"), "utf8");
 const validator = fs.readFileSync(path.join(root, "Assets/Scripts/Editor/AssetReadinessValidator.cs"), "utf8");
@@ -128,11 +131,15 @@ for (const symbol of ["GameModeMenuController", "StartQuickMatch", "StartPractic
   if (!modeMenu.includes(symbol)) throw new Error(`GameModeMenuController missing ${symbol}`);
 }
 
+for (const symbol of ["ArenaLobbySkin", "panelColor", "accentColor", "primaryActionText", "Apply"]) {
+  if (!lobbySkin.includes(symbol)) throw new Error(`ArenaLobbySkin missing ${symbol}`);
+}
+
 for (const symbol of ["join_room", "request_delivery", "resolveOutcome", "match_state", "sanitizeRoomCode", "MAX_ROOM_PLAYERS", "cleanupRooms", "RATE_LIMIT_MAX_MESSAGES", "/metrics", "decodeFrames"]) {
   if (!server.includes(symbol)) throw new Error(`authoritative-server missing ${symbol}`);
 }
 
-for (const symbol of ["MenuItem", "BuildScene", "CreateStadium", "CreatePlayer", "CreateHud", "RealtimeMatchClient", "NetworkGameplaySynchronizer", "RuntimeAssetBinder", "MobilePerformanceManager", "GameModeMenuController", "QuickMatchButton", "CareerButton", "TournamentButton", "RoomCodeInput"]) {
+for (const symbol of ["MenuItem", "BuildScene", "CreateStadium", "CreatePlayer", "CreateHud", "RealtimeMatchClient", "NetworkGameplaySynchronizer", "RuntimeAssetBinder", "MobilePerformanceManager", "GameModeMenuController", "ArenaLobbySkin", "CreatePanel", "TopStatusBar", "ModePanel", "SquadPanel", "ActionBar", "PrimaryPlayButton", "QuickMatchButton", "CareerButton", "TournamentButton", "RoomCodeInput"]) {
   if (!sceneBuilder.includes(symbol)) throw new Error(`ArenaSceneBuilder missing ${symbol}`);
 }
 
